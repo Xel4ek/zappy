@@ -64,6 +64,56 @@
         }
       }
     },
+    "mock": {
+      "root": "apps/mock",
+      "sourceRoot": "apps/mock/src",
+      "projectType": "application",
+      "architect": {
+        "build": {
+          "builder": "@nrwl/node:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/mock",
+            "main": "apps/mock/src/main.ts",
+            "tsConfig": "apps/mock/tsconfig.app.json",
+            "assets": ["apps/mock/src/assets"]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/mock/src/environments/environment.ts",
+                  "with": "apps/mock/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "mock:build"
+          }
+        },
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/mock/**/*.ts"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/mock"],
+          "options": {
+            "jestConfig": "apps/mock/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
     "zappy": {
       "projectType": "application",
       "root": "apps/zappy",
@@ -80,8 +130,8 @@
             "polyfills": "apps/zappy/src/polyfills.ts",
             "tsConfig": "apps/zappy/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": ["apps/zappy/src/favicon.ico", "apps/zappy/src/assets"],
-            "styles": ["apps/zappy/src/styles.scss"],
+            "assets": ["apps/zappy/src/favicon.ico","apps/zappy/src/assets",{"glob":"**/*","input":"node_modules/@taiga-ui/icons/src","output":"assets/taiga-ui/icons"}],
+            "styles": ["apps/zappy/src/styles.scss","node_modules/@taiga-ui/core/styles/taiga-ui-global.less","node_modules/@taiga-ui/core/styles/taiga-ui-theme.less"],
             "scripts": []
           },
           "configurations": {
@@ -129,7 +179,7 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "proxyConfig": "apps/zappy/proxy.conf.json"
+            "proxyConfig": "apps/zappy/proxy.conj.js"
           }
         },
         "extract-i18n": {
@@ -212,7 +262,8 @@
       "unitTestRunner": "jest"
     },
     "@nrwl/angular:component": {
-      "style": "scss"
+      "style": "scss",
+      "changeDetection": "OnPush"
     }
   },
   "defaultProject": "zappy"

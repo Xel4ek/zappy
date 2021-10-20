@@ -33,6 +33,9 @@
     "api-interfaces": {
       "tags": []
     },
+    "mock": {
+      "tags": []
+    },
     "zappy": {
       "tags": []
     },

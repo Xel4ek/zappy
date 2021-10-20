@@ -4,6 +4,13 @@
 
 export const environment = {
   production: false,
+  ws:
+    location.protocol.replace('http', 'ws') +
+    '//' +
+    location.hostname +
+    ':' +
+    location.port +
+    '/ws',
 };
 
 /*

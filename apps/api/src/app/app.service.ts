@@ -3,7 +3,7 @@ import { Message } from '@zappy/api-interfaces';
 
 @Injectable()
 export class AppService {
-  getData(): Message {
+  getData(): any {
     return { message: 'Welcome to api!' };
   }
 }
