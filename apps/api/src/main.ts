@@ -24,13 +24,13 @@ async function bootstrap() {
   // const gameServerTcp = app.connectMicroservice<MicroserviceOptions>({
   //   transport: Transport.TCP,
   //   options: {
-  //     port: 4242,
+  //     port: 9876,
   //   },
   // });
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
   const port = process.env.PORT || 3333;
-  // await app.startAllMicroservices();
+  await app.startAllMicroservices();
   await app.listen(port, () => {
     Logger.log('Listening at http://localhost:' + port + '/' + globalPrefix);
   });
