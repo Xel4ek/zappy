@@ -9,9 +9,14 @@ import {
   tap,
 } from 'rxjs';
 
+export interface Team {
+  color: string;
+  name: string;
+}
 export interface GameSettings {
-  sizeX: number;
-  sizeY: number;
+  sizeX?: number;
+  sizeY?: number;
+  teams: Team[];
 }
 export interface Cell {
   id: number;
@@ -22,7 +27,9 @@ export interface Cell {
 })
 export class GameService implements OnDestroy {
   private readonly destroy$ = new Subject<void>();
-  gameSettings = new ReplaySubject<GameSettings>();
+  gameSettings = new BehaviorSubject<GameSettings>({
+    teams: [],
+  });
   worldMapSubject = new BehaviorSubject<Cell[]>([]);
   width = 0;
   // game: GameStore = {
@@ -44,10 +51,10 @@ export class GameService implements OnDestroy {
         tap((data) => {
           const { x: sizeX, y: sizeY } = <{ x: number; y: number }>data;
           this.width = sizeX;
-          this.gameSettings.next({
-            sizeX,
-            sizeY,
-          });
+          const settings = this.gameSettings.value;
+          settings.sizeX = sizeX;
+          settings.sizeY = sizeY;
+          this.gameSettings.next(settings);
           this.worldMapSubject.next(
             Array.from({ length: sizeX * sizeY }, (_, index) => ({
               id: index,
@@ -67,6 +74,18 @@ export class GameService implements OnDestroy {
           const { x, y, resources } = <any>data;
           worldMap[x + y * this.width].res = resources;
           this.worldMapSubject.next(worldMap);
+        })
+      )
+      .subscribe();
+
+    websocketService
+      .on<Team>('tna')
+      .pipe(
+        takeUntil(this.destroy$),
+        tap((data) => {
+          const settings = this.gameSettings.value;
+          settings.teams?.push(data);
+          this.gameSettings.next(settings);
         })
       )
       .subscribe();

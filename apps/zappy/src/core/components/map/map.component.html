@@ -1,14 +1,26 @@
-<div class="map">
-  <!--  <div *ngFor="">text</div>-->
-  <div class="cell" *ngFor="let item of worldMap | async; trackBy: trackBy">
-    <tui-badged-content
-      *ngFor="let res of item.res | keyvalue"
-      size="s"
-      [contentTop]="res.value"
-      [rounded]="true"
+<tui-scrollbar class="box">
+  <div class="map" (mouseleave)="showHint()">
+    <!--  <div *ngFor="">text</div>-->
+    <div
+      class="cell"
+      *ngFor="let item of worldMap | async; trackBy: trackBy"
+      [tuiPointerHint]="item.res | json"
     >
-      <tui-avatar [text]="res.key" size="s" [rounded]="true"></tui-avatar>
-    </tui-badged-content>
+      <tui-badged-content
+        (mouseover)="showHint(item)"
+        *ngFor="let res of item.res | keyvalue"
+        size="s"
+        [contentTop]="res.value"
+        [rounded]="true"
+      >
+        <tui-avatar
+          [text]="res.key"
+          size="s"
+          [title]="res.key"
+          [rounded]="true"
+        ></tui-avatar>
+      </tui-badged-content>
+    </div>
+    <!--  <canvas #canvas></canvas>-->
   </div>
-  <!--  <canvas #canvas></canvas>-->
-</div>
+</tui-scrollbar>

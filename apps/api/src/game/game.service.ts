@@ -58,7 +58,10 @@ export class GameService {
       return acc;
     }, {});
   }
-  private static readonly eventMap = new Map([
+  private static readonly eventMap = new Map<
+    string,
+    (data: string[]) => Record<string, unknown>
+  >([
     ['msz', (data) => ({ x: +data[0], y: +data[1] })],
     [
       'bct',
@@ -66,6 +69,13 @@ export class GameService {
         x: +data[0],
         y: +data[1],
         resources: GameService.resourcesZip(data.slice(2)),
+      }),
+    ],
+    [
+      'tna',
+      (data) => ({
+        name: data[0],
+        color: Math.floor(Math.random() * 16777215).toString(16),
       }),
     ],
   ]);

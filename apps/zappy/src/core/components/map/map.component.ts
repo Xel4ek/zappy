@@ -41,8 +41,8 @@ export class MapComponent implements AfterViewInit {
       .pipe(
         takeUntil(this.destroy$),
         tap((data) => {
-          this.sizeX = data.sizeX;
-          this.sizeY = data.sizeY;
+          this.sizeX = data.sizeX ?? 0;
+          this.sizeY = data.sizeY ?? 0;
         })
       )
       .subscribe();
@@ -67,5 +67,9 @@ export class MapComponent implements AfterViewInit {
   }
   trackBy(index: number) {
     return index;
+  }
+
+  showHint(index?: Cell) {
+    // console.log(index);
   }
 }

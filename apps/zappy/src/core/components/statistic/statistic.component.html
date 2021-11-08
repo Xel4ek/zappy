@@ -1,1 +1,20 @@
-<div class="statistic">w</div>
+<div class="statistic">
+  <div
+    *ngFor="let team of teams$ | async"
+    [ngStyle]="{ color: '#' + team.color }"
+    class="tui-text_h3 teams"
+  >
+    {{ team.name }}
+  </div>
+  <tui-scrollbar class="chat-room">
+    <cdk-virtual-scroll-viewport
+      tuiScrollable
+      itemSize="50"
+      class="chat-viewport tui-zero-scrollbar"
+    >
+      <div *cdkVirtualFor="let item of messages$ | async" class="chat-message">
+        {{ item }}
+      </div>
+    </cdk-virtual-scroll-viewport>
+  </tui-scrollbar>
+</div>
