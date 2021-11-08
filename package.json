@@ -23,6 +23,7 @@
     "@angular/router": "^12.1.0",
     "@nestjs/common": "8.0.6",
     "@nestjs/core": "8.0.6",
+    "@nestjs/event-emitter": "^1.0.0",
     "@nestjs/microservices": "^8.0.6",
     "@nestjs/platform-express": "^7.0.0",
     "@nestjs/platform-fastify": "^8.0.6",
