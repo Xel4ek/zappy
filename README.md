@@ -9,7 +9,7 @@ npm i
 Setup game server at
 ```text
 apps
-└─zappy
+└─api
    └─src
      └─environments
        └─environment.ts
