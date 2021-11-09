@@ -6,7 +6,15 @@ Easy start
 ```shell
 npm i
 ```
-Setup game server at apps/zappy/src/environments/environment.ts
+Setup game server at
+```text
+apps
+└─zappy
+   └─src
+     └─environments
+       └─environment.ts
+```
+
 ```typescript
 export const environment = {
   production: false,
