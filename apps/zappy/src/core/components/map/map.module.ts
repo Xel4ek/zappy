@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { MapComponent } from './map.component';
 import { TuiAvatarModule, TuiBadgedContentModule } from '@taiga-ui/kit';
 import {
+  TuiColorModule,
   TuiHintControllerModule,
   TuiHintModule,
   TuiPointerHintModule,
   TuiScrollbarModule,
+  TuiSvgModule,
 } from '@taiga-ui/core';
 
 @NgModule({
@@ -20,6 +22,8 @@ import {
     TuiHintControllerModule,
     TuiHintModule,
     TuiScrollbarModule,
+    TuiSvgModule,
+    TuiColorModule,
   ],
 })
 export class MapModule {}

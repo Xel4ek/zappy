@@ -4,23 +4,41 @@
     <div
       class="cell"
       *ngFor="let item of worldMap | async; trackBy: trackBy"
-      [tuiPointerHint]="item.res | json"
+      [tuiPointerHint]="item | json"
     >
-      <tui-badged-content
-        (mouseover)="showHint(item)"
-        *ngFor="let res of item.res | keyvalue"
-        size="s"
-        [contentTop]="res.value"
-        [rounded]="true"
-      >
-        <tui-avatar
-          [text]="res.key"
+      <div class="cell-content">
+        <tui-badged-content
+          *ngFor="let res of item.res | keyvalue"
           size="s"
-          [title]="res.key"
+          [contentTop]="res.value"
           [rounded]="true"
-        ></tui-avatar>
-      </tui-badged-content>
+        >
+          <tui-avatar
+            [text]="res.key"
+            size="s"
+            [title]="res.key"
+            [rounded]="true"
+          ></tui-avatar>
+        </tui-badged-content>
+        <tui-badged-content
+          *ngIf="item.player"
+          size="l"
+          [contentTop]="item.player?.level ?? 0"
+          [rounded]="true"
+          class="player"
+          [contentBottom]="item.player?.direction ?? 'tuiIconCancelCircleLarge'"
+        >
+          <tui-avatar
+            [text]="'' + item.player?.id"
+            size="l"
+            [title]="item.player?.team ?? ''"
+            [rounded]="true"
+            [ngStyle]="{ color: item.player.color }"
+          ></tui-avatar>
+        </tui-badged-content>
+      </div>
     </div>
+
     <!--  <canvas #canvas></canvas>-->
   </div>
 </tui-scrollbar>

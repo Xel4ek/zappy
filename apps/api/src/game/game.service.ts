@@ -58,6 +58,21 @@ export class GameService {
       return acc;
     }, {});
   }
+
+  /**
+   *  | 'tuiIconArrowDownLarge'
+   | 'tuiIconArrowLeftLarge'
+   | 'tuiIconArrowRightLarge'
+   | 'tuiIconArrowUpLarge';
+   * @param direction
+   * @private
+   */
+  private static getDirection(direction) {
+    if (direction === 1) return 'tuiIconArrowUpLarge';
+    if (direction === 2) return 'tuiIconArrowRightLarge';
+    if (direction === 3) return 'tuiIconArrowDownLarge';
+    return 'tuiIconArrowLeftLarge';
+  }
   private static readonly eventMap = new Map<
     string,
     (data: string[]) => Record<string, unknown>
@@ -76,6 +91,50 @@ export class GameService {
       (data) => ({
         name: data[0],
         color: Math.floor(Math.random() * 16777215).toString(16),
+      }),
+    ],
+    [
+      'pnw',
+      (data) => ({
+        id: +data[0],
+        x: +data[1],
+        y: +data[2],
+        direction: GameService.getDirection(+data[3]),
+        level: +data[4],
+        team: data[5],
+      }),
+    ],
+    [
+      'ppo',
+      (data) => ({
+        id: +data[0],
+        x: +data[1],
+        y: +data[2],
+        direction: GameService.getDirection(+data[3]),
+      }),
+    ],
+    [
+      'plv',
+      (data) => ({
+        id: +data[0],
+        level: +data[1],
+      }),
+    ],
+    [
+      'pin',
+      (data) => ({
+        id: +data[0],
+        x: +data[1],
+        y: +data[2],
+        inventory: GameService.resourcesZip(data.slice(3)),
+      }),
+    ],
+    // ['pex '],
+    [
+      'pbc',
+      (data) => ({
+        id: +data[0],
+        message: data[1],
       }),
     ],
   ]);

@@ -6,11 +6,15 @@
     gap: 2px;
     .cell {
       background-color: rebeccapurple;
+
+      aspect-ratio: 1/1;
+      width: 100px;
+      //width: 100%;
+      //height: 100%;
+    }
+    .cell-content {
       display: flex;
       flex-wrap: wrap;
-      aspect-ratio: 1/1;
-      width: 100%;
-      height: 100%;
     }
   }
 }

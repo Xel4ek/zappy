@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { GameService, Team } from '../../services/game/game.service';
+import {
+  ChatMessage,
+  GameService,
+  Team,
+} from '../../services/game/game.service';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -10,9 +14,9 @@ import { map } from 'rxjs/operators';
 })
 export class StatisticComponent {
   teams$: Observable<Team[]>;
-  messages$: Observable<string[]>;
+  messages$: Observable<ChatMessage[]>;
   constructor(private readonly gameService: GameService) {
-    this.teams$ = gameService.gameSettings.pipe(map((data) => data.teams));
-    this.messages$ = of(['dawda', 'dawda', 'dadafafa']);
+    this.teams$ = gameService.gameSettings$.pipe(map((data) => data.teams));
+    this.messages$ = this.gameService.messages();
   }
 }

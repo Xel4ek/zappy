@@ -1,40 +1,58 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { WebsocketService } from '../websocket/websocket.service';
-import {
-  BehaviorSubject,
-  Observable,
-  ReplaySubject,
-  Subject,
-  takeUntil,
-  tap,
-} from 'rxjs';
+import { BehaviorSubject, Observable, Subject, takeUntil, tap } from 'rxjs';
 
 export interface Team {
   color: string;
   name: string;
 }
+
 export interface GameSettings {
   sizeX?: number;
   sizeY?: number;
   teams: Team[];
 }
+
+export interface Player {
+  color: string;
+  team: string;
+  level: number;
+  direction:
+    | 'tuiIconArrowDownLarge'
+    | 'tuiIconArrowLeftLarge'
+    | 'tuiIconArrowRightLarge'
+    | 'tuiIconArrowUpLarge';
+  id: number;
+  inventory?: Record<string, number>;
+}
+
 export interface Cell {
   id: number;
   res: Record<string, number>;
+  player?: Player;
+}
+export interface ChatMessage {
+  team: string;
+  color: string;
+  id: number;
+  text: string;
 }
 @Injectable({
   providedIn: 'root',
 })
 export class GameService implements OnDestroy {
-  private readonly destroy$ = new Subject<void>();
-  gameSettings = new BehaviorSubject<GameSettings>({
+  gameSettings$ = new BehaviorSubject<GameSettings>({
     teams: [],
   });
-  worldMapSubject = new BehaviorSubject<Cell[]>([]);
+  messages$ = new BehaviorSubject<ChatMessage[]>([]);
+  worldMap$ = new BehaviorSubject<Cell[]>([]);
+  players$ = new BehaviorSubject<{ [index: number]: Player }>({});
   width = 0;
+  private readonly destroy$ = new Subject<void>();
   // game: GameStore = {
   //   sizeY: 0,
   //   sizeX: 0,
+
   // };
   constructor(private readonly websocketService: WebsocketService) {
     websocketService
@@ -51,11 +69,11 @@ export class GameService implements OnDestroy {
         tap((data) => {
           const { x: sizeX, y: sizeY } = <{ x: number; y: number }>data;
           this.width = sizeX;
-          const settings = this.gameSettings.value;
+          const settings = this.gameSettings$.value;
           settings.sizeX = sizeX;
           settings.sizeY = sizeY;
-          this.gameSettings.next(settings);
-          this.worldMapSubject.next(
+          this.gameSettings$.next(settings);
+          this.worldMap$.next(
             Array.from({ length: sizeX * sizeY }, (_, index) => ({
               id: index,
               res: {},
@@ -70,10 +88,10 @@ export class GameService implements OnDestroy {
       .pipe(
         takeUntil(this.destroy$),
         tap((data) => {
-          const worldMap = this.worldMapSubject.value;
+          const worldMap = this.worldMap$.value;
           const { x, y, resources } = <any>data;
           worldMap[x + y * this.width].res = resources;
-          this.worldMapSubject.next(worldMap);
+          this.worldMap$.next(worldMap);
         })
       )
       .subscribe();
@@ -83,22 +101,134 @@ export class GameService implements OnDestroy {
       .pipe(
         takeUntil(this.destroy$),
         tap((data) => {
-          const settings = this.gameSettings.value;
+          const settings = this.gameSettings$.value;
           settings.teams?.push(data);
-          this.gameSettings.next(settings);
+          this.gameSettings$.next(settings);
+        })
+      )
+      .subscribe();
+
+    websocketService
+      .on<Player & { x: number; y: number }>('pnw')
+      .pipe(
+        takeUntil(this.destroy$),
+        tap((data) => {
+          const player = data;
+          const { x, y } = data;
+          player.color =
+            '#' +
+              this.gameSettings$.value.teams.find(
+                (team) => team.name === player.team
+              )?.color ?? '#00000';
+          const worldMap = this.worldMap$.value;
+          worldMap[x + y * this.width].player = player;
+          const players = this.players$.value;
+          players[player.id] = player;
+          this.players$.next(players);
+          this.worldMap$.next(worldMap);
+          console.log(player);
+        })
+      )
+      .subscribe();
+
+    websocketService
+      .on<Pick<Player, 'id' | 'direction'> & { x: number; y: number }>('ppo')
+      .pipe(
+        takeUntil(this.destroy$),
+        tap((data) => {
+          const { x, y, id, direction } = data;
+          const worldMap = this.worldMap$.value;
+          const playerIndex = worldMap.findIndex(
+            (cell) => cell.player?.id === id
+          );
+          if (playerIndex !== -1) {
+            const player = worldMap[playerIndex].player;
+            const players = this.players$.value;
+            delete worldMap[playerIndex].player;
+            if (player) {
+              player.direction = direction;
+              worldMap[x + y * this.width].player = player;
+              players[player.id] = { ...players[player.id], ...data };
+            }
+            this.worldMap$.next(worldMap);
+            this.players$.next(players);
+          }
+        })
+      )
+      .subscribe();
+
+    websocketService
+      .on<{ id: number; level: number }>('plv')
+      .pipe(
+        takeUntil(this.destroy$),
+        tap((data) => {
+          const worldMap = this.worldMap$.value;
+          const players = this.players$.value;
+          const player = worldMap.find((e) => e.player?.id === data.id)?.player;
+          if (player) {
+            player.level = data.level;
+            players[player.id].level = data.level;
+            this.worldMap$.next(worldMap);
+            this.players$.next(players);
+          }
+        })
+      )
+      .subscribe();
+
+    websocketService
+      .on<Player>('pin')
+      .pipe(
+        takeUntil(this.destroy$),
+        tap((data) => {
+          const worldMap = this.worldMap$.value;
+          const players = this.players$.value;
+          const player = worldMap.find((e) => e.player?.id === data.id)?.player;
+          if (player) {
+            player.inventory = data.inventory;
+            players[player.id].inventory = data.inventory;
+            this.worldMap$.next(worldMap);
+            this.players$.next(players);
+          }
+        })
+      )
+      .subscribe();
+    websocketService
+      .on<ChatMessage>('pbc')
+      .pipe(
+        takeUntil(this.destroy$),
+        tap((data) => {
+          const messages = this.messages$.value;
+          const players = this.players$.value;
+          const message = {
+            team: players[data.id].team,
+            color: players[data.id].color,
+            id: data.id,
+            text: data.text,
+          };
+          messages.push(message);
+          this.messages$.next(messages);
         })
       )
       .subscribe();
   }
+
   settings(): Observable<GameSettings> {
-    return this.gameSettings.asObservable();
+    return this.gameSettings$.asObservable();
   }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   worldMap() {
-    return this.worldMapSubject.asObservable();
+    return this.worldMap$.asObservable();
+  }
+
+  players() {
+    return this.players$.asObservable();
+  }
+  messages() {
+    return this.messages$.asObservable();
   }
 }
