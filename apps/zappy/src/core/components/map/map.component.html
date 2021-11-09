@@ -21,19 +21,19 @@
           ></tui-avatar>
         </tui-badged-content>
         <tui-badged-content
-          *ngIf="item.player"
+          *ngFor="let player of item.players"
           size="l"
-          [contentTop]="item.player?.level ?? 0"
+          [contentTop]="player.level"
           [rounded]="true"
           class="player"
-          [contentBottom]="item.player?.direction ?? 'tuiIconCancelCircleLarge'"
+          [contentBottom]="player.direction"
         >
           <tui-avatar
-            [text]="'' + item.player?.id"
+            [text]="'' + player.id"
             size="l"
-            [title]="item.player?.team ?? ''"
+            [title]="player.team"
             [rounded]="true"
-            [ngStyle]="{ color: item.player.color }"
+            [ngStyle]="{ color: player.color }"
           ></tui-avatar>
         </tui-badged-content>
       </div>

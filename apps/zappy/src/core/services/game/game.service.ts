@@ -29,7 +29,7 @@ export interface Player {
 export interface Cell {
   id: number;
   res: Record<string, number>;
-  player?: Player;
+  players: Player[];
 }
 export interface ChatMessage {
   team: string;
@@ -77,6 +77,7 @@ export class GameService implements OnDestroy {
             Array.from({ length: sizeX * sizeY }, (_, index) => ({
               id: index,
               res: {},
+              players: [],
             }))
           );
         })
@@ -121,12 +122,11 @@ export class GameService implements OnDestroy {
                 (team) => team.name === player.team
               )?.color ?? '#00000';
           const worldMap = this.worldMap$.value;
-          worldMap[x + y * this.width].player = player;
+          worldMap[x + y * this.width].players.push(player);
           const players = this.players$.value;
           players[player.id] = player;
           this.players$.next(players);
           this.worldMap$.next(worldMap);
-          console.log(player);
         })
       )
       .subscribe();
@@ -138,16 +138,19 @@ export class GameService implements OnDestroy {
         tap((data) => {
           const { x, y, id, direction } = data;
           const worldMap = this.worldMap$.value;
-          const playerIndex = worldMap.findIndex(
-            (cell) => cell.player?.id === id
+          const cellIndex = worldMap.findIndex((cell) =>
+            cell.players.find((pl) => pl.id === id)
           );
-          if (playerIndex !== -1) {
-            const player = worldMap[playerIndex].player;
+          if (cellIndex !== -1) {
+            let cellPlayers = worldMap[cellIndex].players;
+            const pIndex = cellPlayers.findIndex((pl) => pl.id === id);
+            const player = cellPlayers[pIndex];
+            cellPlayers = cellPlayers.filter((pl) => pl.id !== id);
             const players = this.players$.value;
-            delete worldMap[playerIndex].player;
+            worldMap[cellIndex].players = cellPlayers;
             if (player) {
               player.direction = direction;
-              worldMap[x + y * this.width].player = player;
+              worldMap[x + y * this.width].players.push(player);
               players[player.id] = { ...players[player.id], ...data };
             }
             this.worldMap$.next(worldMap);
@@ -164,7 +167,9 @@ export class GameService implements OnDestroy {
         tap((data) => {
           const worldMap = this.worldMap$.value;
           const players = this.players$.value;
-          const player = worldMap.find((e) => e.player?.id === data.id)?.player;
+          const player = worldMap
+            .find((cell) => cell.players.find((pl) => pl.id === data.id))
+            ?.players.find((pl) => pl.id === data.id);
           if (player) {
             player.level = data.level;
             players[player.id].level = data.level;
@@ -182,7 +187,9 @@ export class GameService implements OnDestroy {
         tap((data) => {
           const worldMap = this.worldMap$.value;
           const players = this.players$.value;
-          const player = worldMap.find((e) => e.player?.id === data.id)?.player;
+          const player = worldMap
+            .find((cell) => cell.players.find((pl) => pl.id === data.id))
+            ?.players.find((pl) => pl.id === data.id);
           if (player) {
             player.inventory = data.inventory;
             players[player.id].inventory = data.inventory;
