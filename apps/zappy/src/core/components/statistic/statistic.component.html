@@ -12,7 +12,11 @@
       itemSize="50"
       class="chat-viewport tui-zero-scrollbar"
     >
-      <div *cdkVirtualFor="let item of messages$ | async" class="chat-message">
+      <div
+        *cdkVirtualFor="let item of messages$ | async"
+        class="chat-message"
+        [ngStyle]="{ color: item.color }"
+      >
         {{ item.team }}#{{ item.id }}: {{ item.text }}
       </div>
     </cdk-virtual-scroll-viewport>
