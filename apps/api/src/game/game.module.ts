@@ -4,6 +4,7 @@ import { GameGateway } from './game.gateway';
 import { ClientsModule } from '@nestjs/microservices';
 import { GameController } from './game.controller';
 import { GameServerClient } from './game.server';
+import { environment } from '../environments/environment';
 
 class Serializer {
   serialize(data) {
@@ -20,8 +21,7 @@ class Serializer {
         name: 'GAME_SERVICE',
         customClass: GameServerClient,
         options: {
-          port: 9876,
-          host: '172.25.101.165',
+          ...environment.gameServer,
           serializer: new Serializer(),
         },
       },
