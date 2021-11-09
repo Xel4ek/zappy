@@ -212,8 +212,8 @@ export class GameService implements OnDestroy {
             id: data.id,
             text: data.text,
           };
-          messages.push(message);
-          this.messages$.next(messages);
+          // messages.push(message);
+          this.messages$.next([message, ...messages]);
         })
       )
       .subscribe();

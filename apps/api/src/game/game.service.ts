@@ -134,7 +134,7 @@ export class GameService {
       'pbc',
       (data) => ({
         id: +data[0],
-        message: data[1],
+        text: data.slice(1).join(' '),
       }),
     ],
   ]);
@@ -168,9 +168,6 @@ export class GameService {
         );
       }
     }
-    // if (this.store) {
-    //   this.store.send(JSON.stringify({ event: 'test', data }));
-    // }
   }
   disconnect() {
     this.client.close();
