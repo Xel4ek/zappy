@@ -213,7 +213,7 @@ export class GameService implements OnDestroy {
             text: data.text,
           };
           // messages.push(message);
-          this.messages$.next([message, ...messages]);
+          this.messages$.next([...messages, message]);
         })
       )
       .subscribe();

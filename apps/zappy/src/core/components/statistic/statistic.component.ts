@@ -17,10 +17,6 @@ export class StatisticComponent {
   messages$: Observable<ChatMessage[]>;
   constructor(private readonly gameService: GameService) {
     this.teams$ = gameService.gameSettings$.pipe(map((data) => data.teams));
-    this.messages$ = this.gameService.messages().pipe(
-      tap((data) => {
-        console.log('component', data);
-      })
-    );
+    this.messages$ = this.gameService.messages();
   }
 }
