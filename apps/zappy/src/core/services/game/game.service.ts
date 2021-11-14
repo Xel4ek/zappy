@@ -55,13 +55,13 @@ export class GameService implements OnDestroy {
 
   // };
   constructor(private readonly websocketService: WebsocketService) {
-    websocketService
-      .on('test', () => ({
-        event: 'connect',
-        data: 'data',
-      }))
-      .pipe(tap(console.log))
-      .subscribe();
+    // websocketService
+    //   .on('test', () => ({
+    //     event: 'connect',
+    //     data: 'data',
+    //   }))
+    //   .pipe(tap(console.log))
+    //   .subscribe();
     this.websocketService
       .on('msz')
       .pipe(
@@ -91,6 +91,7 @@ export class GameService implements OnDestroy {
         tap((data) => {
           const worldMap = this.worldMap$.value;
           const { x, y, resources } = <any>data;
+          console.log(x, y, this.width, data);
           worldMap[x + y * this.width].res = resources;
           this.worldMap$.next(worldMap);
         })
