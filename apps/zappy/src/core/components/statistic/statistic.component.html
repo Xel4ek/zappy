@@ -6,18 +6,39 @@
   >
     {{ team.name }}
   </div>
-  <tui-scrollbar class="chat-room">
+  <tui-scrollbar class="chat-room" [hidden]="true">
     <cdk-virtual-scroll-viewport
+      #chatView
       tuiScrollable
-      itemSize="23"
+      itemSize="50"
       class="chat-viewport tui-zero-scrollbar"
     >
-      <div
-        *cdkVirtualFor="let item of messages$ | async"
-        class="chat-message"
-        [ngStyle]="{ color: item.color }"
-      >
-        {{ item.team }}#{{ item.id }}: {{ item.text }}
+      <div *cdkVirtualFor="let item of messages$ | async" class="chat-message">
+        #{{ item.id
+        }}<span [ngStyle]="{ color: item.color }">[{{ item.team }}]</span
+        ><strong class="tui-space_right-1">:</strong>
+        <span class="message"> {{ item.text }} </span>
+        <span class="time tui-space-left-3">{{
+          item.timestamp | date: 'HH:mm'
+        }}</span>
+      </div>
+    </cdk-virtual-scroll-viewport>
+  </tui-scrollbar>
+  <tui-scrollbar class="chat-room" [hidden]="true">
+    <cdk-virtual-scroll-viewport
+      #logView
+      tuiScrollable
+      itemSize="50"
+      class="chat-viewport tui-zero-scrollbar"
+    >
+      <div *cdkVirtualFor="let item of log$ | async" class="chat-message">
+        #{{ item.id
+        }}<span [ngStyle]="{ color: item.color }">[{{ item.team }}]</span
+        ><strong class="tui-space_right-1">:</strong>
+        <span class="message"> {{ item.text }} </span>
+        <span class="time tui-space-left-3">{{
+          item.timestamp | date: 'HH:mm'
+        }}</span>
       </div>
     </cdk-virtual-scroll-viewport>
   </tui-scrollbar>

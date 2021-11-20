@@ -1,5 +1,6 @@
+$size: 290px;
 .statistic {
-  width: 200px;
+  width: $size;
   background-color: #cf87f3;
   height: 100%;
   display: flex;
@@ -13,12 +14,32 @@
     background-color: silver;
 
     .chat-viewport {
-      height: 12.5rem;
-      border: 1px solid;
+      height: 100%;
+      .chat-message {
+        max-width: $size;
+        display: flex;
+
+        .message {
+          flex: 1 1 auto;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .time {
+          color: #727272;
+          align-self: flex-end;
+        }
+      }
     }
 
-    .chat-message {
-      height: 3.125rem;
+    //.chat-message {
+    //  height: 2rem;
+    //}
+  }
+}
+::ng-deep {
+  .chat-room {
+    .content {
+      height: 100% !important;
     }
   }
 }

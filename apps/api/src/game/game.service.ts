@@ -9,36 +9,36 @@ export class GameService {
 
   /**
    *
-   msz X Y	msz	Размер карты
-   bct X Y q q q q q q q	bct X Y	Координаты и список ресурсов клетки карты
+   msz X Y  msz  Размер карты
+   bct X Y q q q q q q q  bct X Y  Координаты и список ресурсов клетки карты
    bct X Y q q q q q q q *
 
    nbr_cases
 
-   mct	Координаты и список ресурсов каждой непустой клетки карты
-   tna N * nbr_equipes	tna	Названия команд (team)
-   pnw #n X Y O L N	-	Подключение нового игрока
-   ppo #n X Y O	ppo #n	Позиция и направление игрока
-   plv #n L	plv #n	Уровень игрока
-   pin #n X Y q q q q q q q	pin #n	Инвентарь игрока
-   pex #n	-	Игрок изгоняет всех с клетки
-   pbc #n M	-	Игрок произносит сообщение
-   pic X Y L #n #n ...	-	Первый (из списка) игрок произносит заклинание, в котором участвуют он и все следующие в списке игроки
-   pie X Y R	-	Конец выполнения заклинания
-   pfk #n	-	Игрок откладывает яйцо
-   pdr #n i	-	Игрок выбрасывает ресурс
-   pgt #n i	-	Игрок подбирает ресурс
-   pdi #n	-	Игрок умирает от голода
-   enw #e #n X Y	-	Яйцо было отложено игроком на квадрате X Y
-   eht #e	-	Событие вылупления из яйца
-   ebo #e	-	Один игрок подключился к яйцу (????)
-   edi #e	-	Яйцо умерло от голода
-   sgt T	sgt	Запрос единицы времени на сервере
-   sgt T	sst T	Изменение единицы времени на сервере
-   seg N	-	Конец игры. Номер команды - победителя
-   smg M	-	Сообщение сервера
-   suc	-	Неизвестная команда
-   sbp	-	Неверные параметры запроса
+   mct  Координаты и список ресурсов каждой непустой клетки карты
+   tna N * nbr_equipes  tna  Названия команд (team)
+   pnw #n X Y O L N  -  Подключение нового игрока
+   ppo #n X Y O  ppo #n  Позиция и направление игрока
+   plv #n L  plv #n  Уровень игрока
+   pin #n X Y q q q q q q q  pin #n  Инвентарь игрока
+   pex #n  -  Игрок изгоняет всех с клетки
+   pbc #n M  -  Игрок произносит сообщение
+   pic X Y L #n #n ...  -  Первый (из списка) игрок произносит заклинание, в котором участвуют он и все следующие в списке игроки
+   pie X Y R  -  Конец выполнения заклинания
+   pfk #n  -  Игрок откладывает яйцо
+   pdr #n i  -  Игрок выбрасывает ресурс
+   pgt #n i  -  Игрок подбирает ресурс
+   pdi #n  -  Игрок умирает от голода
+   enw #e #n X Y  -  Яйцо было отложено игроком на квадрате X Y
+   eht #e  -  Событие вылупления из яйца
+   ebo #e  -  Один игрок подключился к яйцу (????)
+   edi #e  -  Яйцо умерло от голода
+   sgt T  sgt  Запрос единицы времени на сервере
+   sgt T  sst T  Изменение единицы времени на сервере
+   seg N  -  Конец игры. Номер команды - победителя
+   smg M  -  Сообщение сервера
+   suc  -  Неизвестная команда
+   sbp  -  Неверные параметры запроса
    * @private
    */
   private static readonly resources = [
@@ -50,6 +50,7 @@ export class GameService {
     'Phiras',
     'Thystame',
   ];
+
   private static resourcesZip(arrayData) {
     return arrayData.reduce((acc, cur, i) => {
       if (+cur) {
@@ -59,14 +60,6 @@ export class GameService {
     }, {});
   }
 
-  /**
-   *  | 'tuiIconArrowDownLarge'
-   | 'tuiIconArrowLeftLarge'
-   | 'tuiIconArrowRightLarge'
-   | 'tuiIconArrowUpLarge';
-   * @param direction
-   * @private
-   */
   private static getColor() {
     const s = 1;
     const h = Math.random() * 360;
@@ -81,12 +74,14 @@ export class GameService {
     };
     return f(0) + f(8) + f(4);
   }
+
   private static getDirection(direction) {
     if (direction === 1) return 'tuiIconArrowUpLarge';
     if (direction === 2) return 'tuiIconArrowRightLarge';
     if (direction === 3) return 'tuiIconArrowDownLarge';
     return 'tuiIconArrowLeftLarge';
   }
+
   private static readonly eventMap = new Map<
     string,
     (data: string[]) => Record<string, unknown>
@@ -149,9 +144,11 @@ export class GameService {
       (data) => ({
         id: +data[0],
         text: data.slice(1).join(' '),
+        timestamp: Date.now(),
       }),
     ],
   ]);
+
   constructor(
     @Inject('GAME_SERVICE') private client: GameServerClient,
     private readonly eventEmitter: EventEmitter2
@@ -183,6 +180,7 @@ export class GameService {
       }
     }
   }
+
   disconnect() {
     this.client.close();
   }

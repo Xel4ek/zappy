@@ -36,6 +36,7 @@ export interface ChatMessage {
   color: string;
   id: number;
   text: string;
+  timestamp: number;
 }
 @Injectable({
   providedIn: 'root',
@@ -47,6 +48,7 @@ export class GameService implements OnDestroy {
   messages$ = new BehaviorSubject<ChatMessage[]>([]);
   worldMap$ = new BehaviorSubject<Cell[]>([]);
   players$ = new BehaviorSubject<{ [index: number]: Player }>({});
+  logMessages$ = new BehaviorSubject<ChatMessage[]>([]);
   width = 0;
   private readonly destroy$ = new Subject<void>();
   // game: GameStore = {
@@ -212,6 +214,7 @@ export class GameService implements OnDestroy {
             color: players[data.id].color,
             id: data.id,
             text: data.text,
+            timestamp: data.timestamp,
           };
           // messages.push(message);
           this.messages$.next([...messages, message]);
@@ -238,5 +241,8 @@ export class GameService implements OnDestroy {
   }
   messages() {
     return this.messages$.asObservable();
+  }
+  log() {
+    return this.logMessages$.asObservable();
   }
 }
