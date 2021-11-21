@@ -8,6 +8,9 @@ export class SoundService {
   private _click = new Howl({
     src: ['/assets/mixkit-plastic-bubble-click-1124.wav'],
   });
+  private _message = new Howl({
+    src: ['/assets/mixkit-robotic-voices-281.wav'],
+  });
   private _background = new Howl({
     src: ['/assets/ForestWalk-320bit.mp3'],
     // autoplay: true,
@@ -21,5 +24,8 @@ export class SoundService {
   }
   setVolume(value: number) {
     Howler.volume(value / 100);
+  }
+  message() {
+    this._message.play();
   }
 }

@@ -11,6 +11,7 @@ import {
   tap,
 } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { SoundService } from '../sound/sound.service';
 
 export interface Team {
   color: string;
@@ -67,7 +68,10 @@ export class GameService implements OnDestroy {
   //   sizeX: 0,
 
   // };
-  constructor(private readonly websocketService: WebsocketService) {
+  constructor(
+    private readonly websocketService: WebsocketService,
+    private readonly soundService: SoundService
+  ) {
     // websocketService
     //   .on('test', () => ({
     //     event: 'connect',
@@ -229,6 +233,7 @@ export class GameService implements OnDestroy {
             timestamp: data.timestamp,
           };
           // messages.push(message);
+          this.soundService.message();
           this.messages$.next([...messages, message]);
         })
       )
