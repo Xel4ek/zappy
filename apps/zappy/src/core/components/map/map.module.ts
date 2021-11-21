@@ -1,7 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MapComponent } from './map.component';
-import { TuiAvatarModule, TuiBadgedContentModule } from '@taiga-ui/kit';
+import {
+  TuiAvatarModule,
+  TuiBadgedContentModule,
+  TuiBadgeModule,
+} from '@taiga-ui/kit';
 import {
   TuiColorModule,
   TuiHintControllerModule,
@@ -10,6 +14,7 @@ import {
   TuiScrollbarModule,
   TuiSvgModule,
 } from '@taiga-ui/core';
+import { TuiFocusableModule } from '@taiga-ui/cdk';
 
 @NgModule({
   declarations: [MapComponent],
@@ -24,6 +29,8 @@ import {
     TuiScrollbarModule,
     TuiSvgModule,
     TuiColorModule,
+    TuiBadgeModule,
+    TuiFocusableModule,
   ],
 })
 export class MapModule {}

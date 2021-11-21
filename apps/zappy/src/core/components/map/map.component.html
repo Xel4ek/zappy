@@ -4,22 +4,14 @@
     <div
       class="cell"
       *ngFor="let item of worldMap | async; trackBy: trackBy"
-      [tuiPointerHint]="item | json"
+      (click)="focusCell($event, item.id)"
     >
       <div class="cell-content">
-        <tui-badged-content
+        <tui-badge
           *ngFor="let res of item.res | keyvalue"
-          size="s"
-          [contentTop]="res.value"
-          [rounded]="true"
-        >
-          <tui-avatar
-            [text]="res.key"
-            size="s"
-            [title]="res.key"
-            [rounded]="true"
-          ></tui-avatar>
-        </tui-badged-content>
+          [value]="res.value"
+          [ngClass]="res.key | lowercase"
+        ></tui-badge>
         <tui-badged-content
           *ngFor="let player of item.players"
           size="l"
@@ -30,6 +22,7 @@
           [contentBottom]="player.direction"
         >
           <tui-avatar
+            (click)="focusPlayer($event, player.id)"
             [text]="'' + player.id"
             [style.--tui-text-01]="invertColor(player.color)"
             size="l"

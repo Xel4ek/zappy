@@ -1,0 +1,44 @@
+<!--<div class="controls">-->
+<!--  controls-->
+<!--  <div class="controls-sound">-->
+<!--    sound-->
+<!--    <div class="slider">slider</div>-->
+<!--  </div>-->
+<!--</div>-->
+<ng-container *ngIf="info$ | async as info">
+  <div class="info tui-list" *ngIf="info.type === 'cell'">
+    Сan be found here:
+    <div *ngFor="let item of info.data.res | keyvalue">
+      <tui-badge
+        [value]="item.value"
+        [ngClass]="item.key | lowercase"
+        class="tui-space_right-2"
+      ></tui-badge>
+      {{ item.key }}
+    </div>
+    <div *ngIf="!(info.data.res | keyvalue).length" class="tui-space_left-5">
+      Nothing
+    </div>
+  </div>
+  <div class="info tui-list" *ngIf="info.type === 'player'">
+    <div>Team: {{ info.data.team }}</div>
+    <div>Level: {{ info.data.level }}</div>
+    <div class="tui-list">
+      <strong>Inventory:</strong>
+      <div *ngFor="let item of info.data.inventory | keyvalue">
+        <tui-badge
+          [value]="item.value"
+          [ngClass]="item.key | lowercase"
+          class="tui-space_right-2 tui-space_left-5"
+        ></tui-badge>
+        {{ item.key }}
+      </div>
+      <div
+        *ngIf="!(info.data.inventory | keyvalue).length"
+        class="tui-space_left-5"
+      >
+        Empty
+      </div>
+    </div>
+  </div>
+</ng-container>

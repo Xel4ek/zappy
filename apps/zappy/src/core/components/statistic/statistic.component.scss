@@ -1,7 +1,11 @@
 $size: 290px;
 .statistic {
   width: $size;
-  background-color: #cf87f3;
+  background: linear-gradient(
+    rgba(215, 215, 221, 1) 0%,
+    rgb(94, 102, 190) 35%,
+    rgb(2, 5, 21) 100%
+  );
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -11,7 +15,7 @@ $size: 290px;
   }
   .chat-room {
     height: 400px;
-    background-color: silver;
+    background-color: rgba(255, 255, 255, 0.68);
 
     .chat-viewport {
       height: 100%;

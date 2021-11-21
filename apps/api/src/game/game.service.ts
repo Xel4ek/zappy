@@ -138,6 +138,7 @@ export class GameService {
         inventory: GameService.resourcesZip(data.slice(3)),
       }),
     ],
+
     // ['pex '],
     [
       'pbc',

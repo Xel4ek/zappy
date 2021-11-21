@@ -1,0 +1,40 @@
+@import '~@taiga-ui/core/styles/taiga-ui-local';
+:host {
+  position: fixed;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  .info {
+    right: 2rem;
+    position: absolute;
+    bottom: 2rem;
+    background: silver;
+    padding: 1rem;
+    border: 1px solid darkgray;
+    border-radius: 0.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    @include shadow(3);
+  }
+  .controls {
+    pointer-events: auto;
+    user-select: none;
+    right: 2rem;
+    top: 1rem;
+    position: absolute;
+    display: flex;
+    &-sound {
+      position: relative;
+      .slider {
+        position: absolute;
+        left: 0;
+        right: 0;
+        display: none;
+      }
+      &:hover .slider {
+        display: block;
+      }
+    }
+  }
+}

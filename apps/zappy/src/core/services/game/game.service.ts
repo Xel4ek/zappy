@@ -1,6 +1,16 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { WebsocketService } from '../websocket/websocket.service';
-import { BehaviorSubject, Observable, Subject, takeUntil, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  filter,
+  of,
+  Observable,
+  Subject,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface Team {
   color: string;
@@ -23,7 +33,7 @@ export interface Player {
     | 'tuiIconArrowRightLarge'
     | 'tuiIconArrowUpLarge';
   id: number;
-  inventory?: Record<string, number>;
+  inventory: Record<string, number>;
 }
 
 export interface Cell {
@@ -49,6 +59,7 @@ export class GameService implements OnDestroy {
   worldMap$ = new BehaviorSubject<Cell[]>([]);
   players$ = new BehaviorSubject<{ [index: number]: Player }>({});
   logMessages$ = new BehaviorSubject<ChatMessage[]>([]);
+  info$ = new Subject<{ id: number; type: 'player' | 'cell' | 'empty' }>();
   width = 0;
   private readonly destroy$ = new Subject<void>();
   // game: GameStore = {
@@ -124,6 +135,7 @@ export class GameService implements OnDestroy {
               this.gameSettings$.value.teams.find(
                 (team) => team.name === player.team
               )?.color ?? '#00000';
+          player.inventory = {};
           const worldMap = this.worldMap$.value;
           worldMap[x + y * this.width].players.push(player);
           const players = this.players$.value;
@@ -244,5 +256,33 @@ export class GameService implements OnDestroy {
   }
   log() {
     return this.logMessages$.asObservable();
+  }
+  info(): Observable<
+    { type: 'player'; data: Player } | { type: 'cell'; data: Cell } | undefined
+  > {
+    return this.info$.pipe(
+      switchMap(({ id, type }) => {
+        if (type === 'cell')
+          return this.worldMap$.asObservable().pipe(
+            map((data) => data.find((item) => item.id === id)),
+            map((data) => {
+              if (data) return { type, data };
+              return void 0;
+            })
+          );
+        if (type === 'player')
+          return this.players$.asObservable().pipe(
+            map((data) => data[id]),
+            map((data) => {
+              if (data) return { type, data };
+              return void 0;
+            })
+          );
+        return of(undefined);
+      })
+    );
+  }
+  setInfo(id: number, type: 'player' | 'cell' | 'empty') {
+    this.info$.next({ id, type });
   }
 }
