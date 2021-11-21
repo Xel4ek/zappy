@@ -26,10 +26,23 @@
     display: flex;
     &-sound {
       position: relative;
+      padding-left: 2rem;
+      .marker {
+        color: var(--tui-base-01);
+        background: radial-gradient(
+          circle at 65% 20%,
+          #f8c265 -9%,
+          #ab4802 19%,
+          #562e00 60%,
+          #a65502 100%
+        );
+      }
       .slider {
         position: absolute;
-        left: 0;
+        width: 100px;
         right: 0;
+        top: 0;
+        margin-top: 2.5rem;
         display: none;
       }
       &:hover .slider {

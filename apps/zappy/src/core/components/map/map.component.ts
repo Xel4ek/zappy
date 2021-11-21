@@ -14,6 +14,7 @@ import { Cell, GameService } from '../../services/game/game.service';
 import { TuiDestroyService } from '@taiga-ui/cdk';
 import { Observable, takeUntil, tap } from 'rxjs';
 import { TuiAvatarComponent } from '@taiga-ui/kit';
+import { SoundService } from '../../services/sound/sound.service';
 
 @Component({
   selector: 'zappy-map',
@@ -49,7 +50,8 @@ export class MapComponent implements AfterViewInit {
   constructor(
     private readonly engineService: EngineService,
     private readonly gameService: GameService,
-    private readonly destroy$: TuiDestroyService
+    private readonly destroy$: TuiDestroyService,
+    private readonly soundService: SoundService
   ) {
     gameService
       .settings()
@@ -103,15 +105,20 @@ export class MapComponent implements AfterViewInit {
 
   focusPlayer(event: Event, id: number) {
     event.stopPropagation();
+    this.soundService.click();
+
     this.gameService.setInfo(id, 'player');
   }
 
   focusCell(event: Event, id: number) {
     event.stopPropagation();
+    this.soundService.click();
+
     this.gameService.setInfo(id, 'cell');
   }
   @HostListener('document:click')
   clickOut() {
+    this.soundService.click();
     this.gameService.setInfo(-1, 'empty');
   }
 }

@@ -1,10 +1,20 @@
-<!--<div class="controls">-->
-<!--  controls-->
-<!--  <div class="controls-sound">-->
-<!--    sound-->
-<!--    <div class="slider">slider</div>-->
-<!--  </div>-->
-<!--</div>-->
+<div class="controls">
+  controls
+  <div class="controls-sound">
+    <tui-marker-icon
+      (click)="mute()"
+      class="marker"
+      src="tuiIconSoundOffLarge"
+      size="xs"
+      *ngIf="soundVolume.value === 0; else soundIcon"
+    ></tui-marker-icon>
+    <tui-slider
+      [formControl]="soundVolume"
+      [max]="100"
+      class="slider"
+    ></tui-slider>
+  </div>
+</div>
 <ng-container *ngIf="info$ | async as info">
   <div class="info tui-list" *ngIf="info.type === 'cell'">
     Сan be found here:
@@ -42,3 +52,11 @@
     </div>
   </div>
 </ng-container>
+<ng-template #soundIcon>
+  <tui-marker-icon
+    class="marker"
+    src="tuiIconSoundLarge"
+    size="xs"
+    (click)="mute()"
+  ></tui-marker-icon>
+</ng-template>
