@@ -62,10 +62,10 @@ export class GameServerClient extends ClientProxy {
 
     this.socket.connect(this.port, this.host);
     this.connection = lastValueFrom(source$).catch((err) => {
-      if (err instanceof EmptyError) {
-        return;
-      }
-      throw err;
+      // if (err instanceof EmptyError) {
+      return;
+      // }
+      // throw err;
     });
 
     return this.connection;

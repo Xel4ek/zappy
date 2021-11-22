@@ -31,10 +31,11 @@
       itemSize="50"
       class="chat-viewport tui-zero-scrollbar"
     >
-      <div *cdkVirtualFor="let item of log$ | async" class="chat-message">
-        #{{ item.id
-        }}<span [ngStyle]="{ color: item.color }">[{{ item.team }}]</span
-        ><strong class="tui-space_right-1">:</strong>
+      <div
+        *cdkVirtualFor="let item of log$ | async; index as i"
+        class="chat-message"
+      >
+        <!--        [{{ i }}]<strong class="tui-space_right-1">:</strong>-->
         <span class="message"> {{ item.text }} </span>
         <span class="time tui-space-left-3">{{
           item.timestamp | date: 'HH:mm'

@@ -1,5 +1,21 @@
 <div class="controls">
-  controls
+  <div class="controls-speed" *ngIf="speed$ | async as speed">
+    <tui-marker-icon
+      (click)="decreaseSpeed()"
+      [ngClass]="{ inactive: speed === 1 }"
+      class="marker"
+      src="tuiIconMinusLarge"
+      size="xs"
+    ></tui-marker-icon>
+    <span> X {{ speed }} </span>
+    <tui-marker-icon
+      (click)="increaseSpeed()"
+      [ngClass]="{ inactive: speed === 512 }"
+      class="marker"
+      src="tuiIconPlusLarge"
+      size="xs"
+    ></tui-marker-icon>
+  </div>
   <div class="controls-sound">
     <tui-marker-icon
       (click)="mute()"

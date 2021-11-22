@@ -148,6 +148,12 @@ export class GameService {
         timestamp: Date.now(),
       }),
     ],
+    [
+      'sgt',
+      (data) => ({
+        speed: +data[0],
+      }),
+    ],
   ]);
 
   constructor(
@@ -184,5 +190,8 @@ export class GameService {
 
   disconnect() {
     this.client.close();
+  }
+  setSpeed(value) {
+    this.client.emit('gameServer', 'sst ' + value);
   }
 }

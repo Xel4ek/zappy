@@ -12,6 +12,7 @@ import {
 } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SoundService } from '../sound/sound.service';
+import { LoggerService } from '../logger/logger.service';
 
 export interface Team {
   color: string;
@@ -22,6 +23,7 @@ export interface GameSettings {
   sizeX?: number;
   sizeY?: number;
   teams: Team[];
+  speed: number;
 }
 
 export interface Player {
@@ -55,30 +57,19 @@ export interface ChatMessage {
 export class GameService implements OnDestroy {
   gameSettings$ = new BehaviorSubject<GameSettings>({
     teams: [],
+    speed: 0,
   });
   messages$ = new BehaviorSubject<ChatMessage[]>([]);
   worldMap$ = new BehaviorSubject<Cell[]>([]);
   players$ = new BehaviorSubject<{ [index: number]: Player }>({});
-  logMessages$ = new BehaviorSubject<ChatMessage[]>([]);
   info$ = new Subject<{ id: number; type: 'player' | 'cell' | 'empty' }>();
   width = 0;
   private readonly destroy$ = new Subject<void>();
-  // game: GameStore = {
-  //   sizeY: 0,
-  //   sizeX: 0,
-
-  // };
   constructor(
     private readonly websocketService: WebsocketService,
-    private readonly soundService: SoundService
+    private readonly soundService: SoundService,
+    private readonly loggerService: LoggerService
   ) {
-    // websocketService
-    //   .on('test', () => ({
-    //     event: 'connect',
-    //     data: 'data',
-    //   }))
-    //   .pipe(tap(console.log))
-    //   .subscribe();
     this.websocketService
       .on('msz')
       .pipe(
@@ -108,7 +99,6 @@ export class GameService implements OnDestroy {
         tap((data) => {
           const worldMap = this.worldMap$.value;
           const { x, y, resources } = <any>data;
-          console.log(x, y, this.width, data);
           worldMap[x + y * this.width].res = resources;
           this.worldMap$.next(worldMap);
         })
@@ -123,6 +113,7 @@ export class GameService implements OnDestroy {
           const settings = this.gameSettings$.value;
           settings.teams?.push(data);
           this.gameSettings$.next(settings);
+          this.loggerService.addMessage('Team: "' + data.name + '" join game');
         })
       )
       .subscribe();
@@ -146,6 +137,9 @@ export class GameService implements OnDestroy {
           players[player.id] = player;
           this.players$.next(players);
           this.worldMap$.next(worldMap);
+          this.loggerService.addMessage(
+            'Player: "' + player.id + '" join ' + player.team + ' team'
+          );
         })
       )
       .subscribe();
@@ -238,6 +232,15 @@ export class GameService implements OnDestroy {
         })
       )
       .subscribe();
+    websocketService
+      .on<{ speed: number }>('sgt')
+      .pipe(
+        takeUntil(this.destroy$),
+        tap((speed) => {
+          this.gameSettings$.next({ ...this.gameSettings$.value, ...speed });
+        })
+      )
+      .subscribe();
   }
 
   settings(): Observable<GameSettings> {
@@ -259,9 +262,7 @@ export class GameService implements OnDestroy {
   messages() {
     return this.messages$.asObservable();
   }
-  log() {
-    return this.logMessages$.asObservable();
-  }
+
   info(): Observable<
     { type: 'player'; data: Player } | { type: 'cell'; data: Cell } | undefined
   > {
@@ -289,5 +290,11 @@ export class GameService implements OnDestroy {
   }
   setInfo(id: number, type: 'player' | 'cell' | 'empty') {
     this.info$.next({ id, type });
+  }
+  increaseSpeed() {
+    this.websocketService.send('sst', this.gameSettings$.value.speed * 2);
+  }
+  decreaseSpeed() {
+    this.websocketService.send('sst', this.gameSettings$.value.speed * 0.5);
   }
 }

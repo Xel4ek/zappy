@@ -1,13 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { GameService } from '../../services/game/game.service';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'zappy-game',
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GameComponent implements OnInit {
-  constructor(private readonly gameService: GameService) {}
-
-  ngOnInit(): void {}
-}
+export class GameComponent {}

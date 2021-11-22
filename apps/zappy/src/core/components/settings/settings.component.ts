@@ -15,6 +15,7 @@ import { SoundService } from '../../services/sound/sound.service';
 })
 export class SettingsComponent {
   private volumeKeeper = { trusted: false, volume: 0 };
+  speed$: Observable<number>;
   info$: Observable<
     { type: 'player'; data: Player } | { type: 'cell'; data: Cell } | undefined
   >;
@@ -38,6 +39,7 @@ export class SettingsComponent {
         })
       )
       .subscribe();
+    this.speed$ = this.gameService.settings().pipe(map((data) => data.speed));
   }
   mute() {
     console.log(this.volumeKeeper, this.soundVolume.value);
@@ -48,5 +50,13 @@ export class SettingsComponent {
       this.volumeKeeper = { trusted: true, volume: this.soundVolume.value };
       this.soundVolume.setValue(0);
     }
+  }
+
+  increaseSpeed() {
+    this.gameService.increaseSpeed();
+  }
+
+  decreaseSpeed() {
+    this.gameService.decreaseSpeed();
   }
 }

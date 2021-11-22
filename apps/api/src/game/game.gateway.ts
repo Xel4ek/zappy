@@ -27,4 +27,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleDisconnect(client: WebSocket): any {
     this.gameService.disconnect();
   }
+  @SubscribeMessage('sst')
+  changeSpeed(@MessageBody() speed: number) {
+    this.gameService.setSpeed(speed);
+  }
 }
