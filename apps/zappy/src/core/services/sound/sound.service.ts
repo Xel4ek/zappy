@@ -9,7 +9,7 @@ export class SoundService {
     src: ['/assets/mixkit-plastic-bubble-click-1124.wav'],
   });
   private _message = new Howl({
-    src: ['/assets/mixkit-robotic-voices-281.wav'],
+    src: ['/assets/mixkit-positive-tech-alert-3218.wav'],
   });
   private _background = new Howl({
     src: ['/assets/ForestWalk-320bit.mp3'],
