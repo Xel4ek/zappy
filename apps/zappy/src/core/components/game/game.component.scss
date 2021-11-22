@@ -7,3 +7,10 @@
     min-width: calc(var(--statisic-size) + 30px);
   }
 }
+::ng-deep {
+  .statistic-scroll {
+    .content {
+      height: 100% !important;
+    }
+  }
+}
