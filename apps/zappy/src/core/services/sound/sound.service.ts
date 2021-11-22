@@ -13,7 +13,7 @@ export class SoundService {
   });
   private _background = new Howl({
     src: ['/assets/ForestWalk-320bit.mp3'],
-    // autoplay: true,
+    autoplay: true,
     loop: true,
     volume: 0.1,
   });
