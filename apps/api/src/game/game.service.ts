@@ -5,7 +5,6 @@ import { GameServerClient } from './game.server';
 @Injectable()
 export class GameService {
   private store: WebSocket;
-  private gameOptions;
 
   /**
    *
@@ -152,6 +151,12 @@ export class GameService {
       'sgt',
       (data) => ({
         speed: +data[0],
+      }),
+    ],
+    [
+      'pdi',
+      (data) => ({
+        id: +data[0],
       }),
     ],
   ]);

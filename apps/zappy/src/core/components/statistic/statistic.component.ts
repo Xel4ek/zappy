@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import {
   ChatMessage,
   GameService,
+  Player,
   Team,
 } from '../../services/game/game.service';
 import { first, Observable, tap, timer } from 'rxjs';
@@ -20,6 +21,7 @@ import {
 })
 export class StatisticComponent {
   teams$: Observable<Team[]>;
+  players$: Observable<{ [index: number]: Player }>;
   messages$: Observable<ChatMessage[]>;
   @ViewChild('chatView') chatViewPort?: CdkVirtualScrollViewport;
   @ViewChild('logView') logViewPort?: CdkVirtualScrollViewport;
@@ -30,7 +32,7 @@ export class StatisticComponent {
     private readonly gameService: GameService,
     private readonly loggerService: LoggerService
   ) {
-    this.teams$ = gameService.gameSettings$.pipe(map((data) => data.teams));
+    this.teams$ = gameService.settings().pipe(map((data) => data.teams));
     this.messages$ = this.gameService.messages().pipe(
       tap((data) => {
         timer(this.delay)
@@ -51,9 +53,14 @@ export class StatisticComponent {
           .subscribe();
       })
     );
+    this.players$ = this.gameService.players();
   }
 
   scrollToEnd(index: number, port?: CdkVirtualScrollViewport) {
     port?.scrollToIndex(index, 'smooth');
+  }
+
+  focusPlayer(id: number) {
+    console.log(id);
   }
 }

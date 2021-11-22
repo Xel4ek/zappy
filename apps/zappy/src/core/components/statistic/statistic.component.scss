@@ -1,6 +1,4 @@
-$size: 300px;
 .statistic {
-  width: $size;
   background: linear-gradient(
     rgba(215, 215, 221, 1) 0%,
     rgb(94, 102, 190) 35%,
@@ -10,9 +8,12 @@ $size: 300px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  .teams {
-    align-self: center;
-  }
+  //.teams {
+  //  align-self: center;
+  //}
+  //&-players {
+  //  font-size: ;
+  //}
   .chat-room {
     padding: 0 0.5rem;
     height: 400px;
@@ -21,7 +22,7 @@ $size: 300px;
     .chat-viewport {
       height: 100%;
       .chat-message {
-        max-width: $size;
+        max-width: var(--statisic-size);
         display: flex;
 
         .message {

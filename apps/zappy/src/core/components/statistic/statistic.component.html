@@ -1,12 +1,32 @@
 <div class="statistic">
-  <div
-    *ngFor="let team of teams$ | async"
-    [ngStyle]="{ color: '#' + team.color }"
-    class="tui-text_h3 teams"
+  <ng-container
+    [tuiTreeController]="false"
+    *tuiLet="players$ | async as players"
   >
-    {{ team.name }}
-  </div>
-  <tui-scrollbar class="chat-room" [hidden]="true">
+    <tui-tree-item
+      *ngFor="let team of teams$ | async"
+      [ngStyle]="{ color: '#' + team.color }"
+      class="tui-text_h3 teams"
+    >
+      {{ team.name }}
+      <tui-tree-item
+        class="tui-text_h6"
+        *ngFor="let pl of players | player: team.name"
+        (click)="focusPlayer(pl.id)"
+      >
+        [{{ pl.id }}] {{ pl.level }} level
+      </tui-tree-item>
+      <tui-tree-item></tui-tree-item>
+    </tui-tree-item>
+  </ng-container>
+  <!--  <div-->
+  <!--    *ngFor="let team of teams$ | async"-->
+  <!--    [ngStyle]="{ color: '#' + team.color }"-->
+  <!--    class="tui-text_h3 teams"-->
+  <!--  >-->
+  <!--    {{ team.name }}-->
+  <!--  </div>-->
+  <tui-scrollbar class="chat-room" [hidden]="true" tuiOverscroll="scroll">
     <cdk-virtual-scroll-viewport
       #chatView
       tuiScrollable
@@ -24,7 +44,7 @@
       </div>
     </cdk-virtual-scroll-viewport>
   </tui-scrollbar>
-  <tui-scrollbar class="chat-room" [hidden]="true">
+  <tui-scrollbar class="chat-room" [hidden]="true" tuiOverscroll="scroll">
     <cdk-virtual-scroll-viewport
       #logView
       tuiScrollable

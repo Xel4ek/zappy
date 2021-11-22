@@ -55,14 +55,17 @@ export interface ChatMessage {
   providedIn: 'root',
 })
 export class GameService implements OnDestroy {
-  gameSettings$ = new BehaviorSubject<GameSettings>({
+  private gameSettings$ = new BehaviorSubject<GameSettings>({
     teams: [],
     speed: 0,
   });
-  messages$ = new BehaviorSubject<ChatMessage[]>([]);
-  worldMap$ = new BehaviorSubject<Cell[]>([]);
-  players$ = new BehaviorSubject<{ [index: number]: Player }>({});
-  info$ = new Subject<{ id: number; type: 'player' | 'cell' | 'empty' }>();
+  private messages$ = new BehaviorSubject<ChatMessage[]>([]);
+  private worldMap$ = new BehaviorSubject<Cell[]>([]);
+  private players$ = new BehaviorSubject<{ [index: number]: Player }>({});
+  private info$ = new Subject<{
+    id: number;
+    type: 'player' | 'cell' | 'empty';
+  }>();
   width = 0;
   private readonly destroy$ = new Subject<void>();
   constructor(
@@ -100,7 +103,7 @@ export class GameService implements OnDestroy {
           const worldMap = this.worldMap$.value;
           const { x, y, resources } = <any>data;
           worldMap[x + y * this.width].res = resources;
-          this.worldMap$.next(worldMap);
+          this.worldMap$.next([...worldMap]);
         })
       )
       .subscribe();
@@ -135,8 +138,8 @@ export class GameService implements OnDestroy {
           worldMap[x + y * this.width].players.push(player);
           const players = this.players$.value;
           players[player.id] = player;
-          this.players$.next(players);
-          this.worldMap$.next(worldMap);
+          this.players$.next({ ...players });
+          this.worldMap$.next([...worldMap]);
           this.loggerService.addMessage(
             'Player: "' + player.id + '" join ' + player.team + ' team'
           );
@@ -166,8 +169,8 @@ export class GameService implements OnDestroy {
               worldMap[x + y * this.width].players.push(player);
               players[player.id] = { ...players[player.id], ...data };
             }
-            this.worldMap$.next(worldMap);
-            this.players$.next(players);
+            this.worldMap$.next([...worldMap]);
+            this.players$.next({ ...players });
           }
         })
       )
@@ -186,8 +189,8 @@ export class GameService implements OnDestroy {
           if (player) {
             player.level = data.level;
             players[player.id].level = data.level;
-            this.worldMap$.next(worldMap);
-            this.players$.next(players);
+            this.worldMap$.next([...worldMap]);
+            this.players$.next({ ...players });
           }
         })
       )
@@ -206,8 +209,8 @@ export class GameService implements OnDestroy {
           if (player) {
             player.inventory = data.inventory;
             players[player.id].inventory = data.inventory;
-            this.worldMap$.next(worldMap);
-            this.players$.next(players);
+            this.worldMap$.next([...worldMap]);
+            this.players$.next({ ...players });
           }
         })
       )
@@ -238,6 +241,27 @@ export class GameService implements OnDestroy {
         takeUntil(this.destroy$),
         tap((speed) => {
           this.gameSettings$.next({ ...this.gameSettings$.value, ...speed });
+        })
+      )
+      .subscribe();
+    websocketService
+      .on<{ id: number }>('pdi')
+      .pipe(
+        takeUntil(this.destroy$),
+        tap(({ id }) => {
+          const worldMap = this.worldMap$.value;
+          const cellIndex = worldMap.findIndex((cell) =>
+            cell.players.find((pl) => pl.id === id)
+          );
+          if (cellIndex !== -1) {
+            let cellPlayers = worldMap[cellIndex].players;
+            cellPlayers = cellPlayers.filter((pl) => pl.id !== id);
+            const players = this.players$.value;
+            worldMap[cellIndex].players = cellPlayers;
+            delete players[+id];
+            this.worldMap$.next([...worldMap]);
+            this.players$.next({ ...players });
+          }
         })
       )
       .subscribe();
