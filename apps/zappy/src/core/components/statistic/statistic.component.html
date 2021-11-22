@@ -19,18 +19,11 @@
       <tui-tree-item></tui-tree-item>
     </tui-tree-item>
   </ng-container>
-  <!--  <div-->
-  <!--    *ngFor="let team of teams$ | async"-->
-  <!--    [ngStyle]="{ color: '#' + team.color }"-->
-  <!--    class="tui-text_h3 teams"-->
-  <!--  >-->
-  <!--    {{ team.name }}-->
-  <!--  </div>-->
   <tui-scrollbar class="chat-room" [hidden]="true" tuiOverscroll="scroll">
     <cdk-virtual-scroll-viewport
       #chatView
       tuiScrollable
-      itemSize="50"
+      itemSize="20"
       class="chat-viewport tui-zero-scrollbar"
     >
       <div *cdkVirtualFor="let item of messages$ | async" class="chat-message">
@@ -48,7 +41,7 @@
     <cdk-virtual-scroll-viewport
       #logView
       tuiScrollable
-      itemSize="50"
+      itemSize="20"
       class="chat-viewport tui-zero-scrollbar"
     >
       <div

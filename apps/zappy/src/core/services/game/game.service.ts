@@ -229,7 +229,6 @@ export class GameService implements OnDestroy {
             text: data.text,
             timestamp: data.timestamp,
           };
-          // messages.push(message);
           this.soundService.message();
           this.messages$.next([...messages, message]);
         })
@@ -258,6 +257,9 @@ export class GameService implements OnDestroy {
             cellPlayers = cellPlayers.filter((pl) => pl.id !== id);
             const players = this.players$.value;
             worldMap[cellIndex].players = cellPlayers;
+            this.loggerService.addMessage(
+              'Player ' + id + ' from ' + players[+id].team + ' dead'
+            );
             delete players[+id];
             this.worldMap$.next([...worldMap]);
             this.players$.next({ ...players });
