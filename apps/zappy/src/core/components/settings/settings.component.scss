@@ -21,7 +21,7 @@
     pointer-events: auto;
     user-select: none;
     right: 2rem;
-    top: 1rem;
+    top: 0;
     position: absolute;
     display: flex;
     &-speed {
@@ -32,10 +32,10 @@
       font-size: 1.1rem;
     }
     &-sound {
+      margin: 1rem 0 1rem 2rem;
       display: flex;
       align-items: center;
       position: relative;
-      padding-left: 2rem;
     }
     .slider {
       position: absolute;
