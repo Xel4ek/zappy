@@ -1,6 +1,5 @@
 <tui-scrollbar class="box">
   <div class="map" (mouseleave)="showHint()">
-    <!--  <div *ngFor="">text</div>-->
     <div
       class="cell"
       *ngFor="let item of worldMap | async; trackBy: trackBy"
@@ -33,7 +32,5 @@
         </tui-badged-content>
       </div>
     </div>
-
-    <!--  <canvas #canvas></canvas>-->
   </div>
 </tui-scrollbar>

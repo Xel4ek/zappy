@@ -37,6 +37,9 @@ export interface Player {
     | 'tuiIconArrowUpLarge';
   id: number;
   inventory: Record<string, number>;
+  x: number;
+  y: number;
+  model: any;
 }
 
 export interface Cell {
@@ -122,7 +125,7 @@ export class GameService implements OnDestroy {
       .subscribe();
 
     websocketService
-      .on<Player & { x: number; y: number }>('pnw')
+      .on<Player>('pnw')
       .pipe(
         takeUntil(this.destroy$),
         tap((data) => {
@@ -148,7 +151,7 @@ export class GameService implements OnDestroy {
       .subscribe();
 
     websocketService
-      .on<Pick<Player, 'id' | 'direction'> & { x: number; y: number }>('ppo')
+      .on<Pick<Player, 'id' | 'direction' | 'x' | 'y'>>('ppo')
       .pipe(
         takeUntil(this.destroy$),
         tap((data) => {

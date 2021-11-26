@@ -5,6 +5,7 @@ import { FormControl } from '@angular/forms';
 import { map } from 'rxjs/operators';
 import { TuiDestroyService } from '@taiga-ui/cdk';
 import { SoundService } from '../../services/sound/sound.service';
+import { EngineService } from '../../services/engine/engine.service';
 
 @Component({
   selector: 'zappy-settings',
@@ -21,11 +22,12 @@ export class SettingsComponent {
   >;
   soundVolume = new FormControl(100);
   constructor(
-    private readonly gameService: GameService,
+    // private readonly gameService: GameService,
+    private readonly engineService: EngineService,
     private readonly destroyService$: TuiDestroyService,
     private readonly soundService: SoundService
   ) {
-    this.info$ = this.gameService.info();
+    this.info$ = this.engineService.info();
     this.soundVolume.valueChanges
       .pipe(
         takeUntil(this.destroyService$),
@@ -39,10 +41,9 @@ export class SettingsComponent {
         })
       )
       .subscribe();
-    this.speed$ = this.gameService.settings().pipe(map((data) => data.speed));
+    this.speed$ = this.engineService.settings().pipe(map((data) => data.speed));
   }
   mute() {
-    console.log(this.volumeKeeper, this.soundVolume.value);
     if (this.volumeKeeper.volume) {
       this.soundVolume.setValue(this.volumeKeeper.volume);
       this.volumeKeeper = { trusted: true, volume: 0 };
@@ -53,10 +54,10 @@ export class SettingsComponent {
   }
 
   increaseSpeed() {
-    this.gameService.increaseSpeed();
+    this.engineService.increaseSpeed();
   }
 
   decreaseSpeed() {
-    this.gameService.decreaseSpeed();
+    this.engineService.decreaseSpeed();
   }
 }

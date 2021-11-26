@@ -1,19 +1,12 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   HostBinding,
   HostListener,
-  OnInit,
-  ViewChild,
 } from '@angular/core';
-import { EngineService } from '../../services/engine/engine.service';
-import { Scene } from 'babylonjs';
 import { Cell, GameService } from '../../services/game/game.service';
 import { TuiDestroyService } from '@taiga-ui/cdk';
 import { Observable, takeUntil, tap } from 'rxjs';
-import { TuiAvatarComponent } from '@taiga-ui/kit';
 import { SoundService } from '../../services/sound/sound.service';
 
 @Component({
@@ -30,10 +23,7 @@ import { SoundService } from '../../services/sound/sound.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [TuiDestroyService],
 })
-export class MapComponent implements AfterViewInit {
-  @ViewChild('canvas', { static: true }) canvas?: ElementRef<HTMLCanvasElement>;
-
-  private scene?: Scene;
+export class MapComponent {
   worldMap: Observable<Cell[]>;
 
   @HostBinding('style.--sizeX')
@@ -42,13 +32,7 @@ export class MapComponent implements AfterViewInit {
   @HostBinding('style.--sizeY')
   sizeY!: number;
 
-  private static padZero(str: string, len: number = 2) {
-    const zeros = new Array(len).join('0');
-    return (zeros + str).slice(-len);
-  }
-
   constructor(
-    private readonly engineService: EngineService,
     private readonly gameService: GameService,
     private readonly destroy$: TuiDestroyService,
     private readonly soundService: SoundService
@@ -66,17 +50,11 @@ export class MapComponent implements AfterViewInit {
     this.worldMap = gameService.worldMap();
   }
 
-  ngAfterViewInit(): void {
-    if (this.canvas) {
-      this.engineService.bind(this.canvas);
-      if (this.engineService.engine) {
-        this.scene = new Scene(this.engineService.engine);
-        this.engineService.start(this.scene);
-      }
-    }
-    // start the Engine
-    // be aware that we have to setup the Scene before
+  private static padZero(str: string, len: number = 2) {
+    const zeros = new Array(len).join('0');
+    return (zeros + str).slice(-len);
   }
+
   trackBy(index: number) {
     return index;
   }
@@ -84,6 +62,7 @@ export class MapComponent implements AfterViewInit {
   showHint(index?: Cell) {
     // console.log(index);
   }
+
   invertColor(hex: string) {
     if (hex.indexOf('#') === 0) {
       hex = hex.slice(1);
@@ -116,6 +95,7 @@ export class MapComponent implements AfterViewInit {
 
     this.gameService.setInfo(id, 'cell');
   }
+
   @HostListener('document:click')
   clickOut() {
     this.soundService.click();
