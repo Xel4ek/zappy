@@ -723,7 +723,7 @@ export class EngineService implements OnDestroy {
       ([key, value]) => key !== 'Nourriture' && value
     ).length;
     const orePosition = new Vector3(
-      (Math.random() - 0.5) * this.cellSize * 2,
+      (Math.random() - 0.5) * this.cellSize * 1.7,
       0,
       (Math.random() - 0.5) * this.cellSize * 2
     );
