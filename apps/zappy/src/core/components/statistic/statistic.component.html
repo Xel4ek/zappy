@@ -10,7 +10,7 @@
     >
       {{ team.name }}
       <tui-tree-item
-        class="tui-text_h6"
+        class="tui-text_h6 player"
         *ngFor="let pl of players | player: team.name"
         (click)="focusPlayer(pl.id)"
       >

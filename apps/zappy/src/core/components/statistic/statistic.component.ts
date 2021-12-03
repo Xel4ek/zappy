@@ -12,6 +12,7 @@ import {
   LoggerService,
   LogMessage,
 } from '../../services/logger/logger.service';
+import { EngineService } from '../../services/engine/engine.service';
 
 @Component({
   selector: 'zappy-statistic',
@@ -29,11 +30,11 @@ export class StatisticComponent {
   private delay = 10;
 
   constructor(
-    private readonly gameService: GameService,
+    private readonly engineService: EngineService,
     private readonly loggerService: LoggerService
   ) {
-    this.teams$ = gameService.settings().pipe(map((data) => data.teams));
-    this.messages$ = this.gameService.messages().pipe(
+    this.teams$ = engineService.settings().pipe(map((data) => data.teams));
+    this.messages$ = this.engineService.messages().pipe(
       tap((data) => {
         timer(this.delay)
           .pipe(
@@ -53,7 +54,7 @@ export class StatisticComponent {
           .subscribe();
       })
     );
-    this.players$ = this.gameService.players();
+    this.players$ = this.engineService.players();
   }
 
   scrollToEnd(index: number, port?: CdkVirtualScrollViewport) {
@@ -61,6 +62,6 @@ export class StatisticComponent {
   }
 
   focusPlayer(id: number) {
-    console.log(id);
+    this.engineService.setInfo(id, 'player');
   }
 }

@@ -25,6 +25,7 @@ import {
   PointerEventTypes,
   Scene,
   SceneLoader,
+  SolidParticleSystem,
   StandardMaterial,
   SubMesh,
   Texture,
@@ -51,6 +52,7 @@ import {
   BehaviorSubject,
   Observable,
   of,
+  pairwise,
   Subject,
   switchMap,
   takeUntil,
@@ -87,10 +89,10 @@ export class EngineService implements OnDestroy {
   private messages$ = new BehaviorSubject<ChatMessage[]>([]);
   private worldMap$ = new BehaviorSubject<Cell[]>([]);
   private players$ = new BehaviorSubject<{ [index: number]: Player }>({});
-  private info$ = new Subject<{
+  private info$ = new BehaviorSubject<{
     id: number;
     type: 'player' | 'cell' | 'empty';
-  }>();
+  }>({ id: -1, type: 'empty' });
   private canvas?: HTMLCanvasElement;
   private engine?: Engine;
   private camera?: ArcRotateCamera;
@@ -146,12 +148,14 @@ export class EngineService implements OnDestroy {
       this.scene
     );
     greenMat.alpha = 0.5;
+    greenMat.freeze();
     this.materialsMap.set('grass', greenMat);
     const sandMat = new StandardMaterial('sandMat', this.scene);
     sandMat.diffuseTexture = new Texture(
-      '/assets/textures/fabio-hanashiro-vIWHM6xI-dc-unsplash.jpg',
+      '/assets/textures/imgonline-com-ua-CompressBySize-LvTTyCbHgRsxt.jpg',
       this.scene
     );
+    sandMat.freeze();
     this.materialsMap.set('sand', sandMat);
     this.container = await SceneLoader.LoadAssetContainerAsync(
       '/assets/blender/',
@@ -182,21 +186,23 @@ export class EngineService implements OnDestroy {
       if (eventData.pickInfo?.hit && this.camera) {
         const obj = eventData.pickInfo.pickedMesh;
         if (!obj) return;
-        console.log(obj.name, obj.position);
-        const easingFunction = new BezierCurveEase();
-        easingFunction.setEasingMode(EasingFunction.EASINGMODE_EASEINOUT);
+        // console.log(obj.name, obj.position);
         if (obj.name.startsWith('player_')) {
-          this.info$.next({ id: +obj?.name.split('_')[1], type: 'player' });
-        } else if (obj.parent?.parent?.name?.startsWith('cell_')) {
-          this.info$.next({
+          return this.info$.next({
+            id: +obj?.name.split('_')[1],
+            type: 'player',
+          });
+        }
+        if (obj.parent?.parent?.name?.startsWith('cell_')) {
+          return this.info$.next({
             id: +obj.parent?.parent?.name.split('_')[1],
             type: 'cell',
           });
-        } else {
-          return;
         }
-        this.soundService.click();
-        this.animateCamera(obj);
+        return this.info$.next({
+          id: -1,
+          type: 'empty',
+        });
       }
     }, PointerEventTypes.POINTERTAP);
     this.scene.clearColor = new Color4(0.18, 0.18, 0.18, 1);
@@ -343,6 +349,16 @@ export class EngineService implements OnDestroy {
     { type: 'player'; data: Player } | { type: 'cell'; data: Cell } | undefined
   > {
     return this.info$.pipe(
+      pairwise(),
+      map(([oldValue, newValue]) => {
+        if (oldValue.type === 'cell') {
+          this.selectCell(oldValue.id, false);
+        }
+        if (newValue.type === 'cell') {
+          this.selectCell(newValue.id, true);
+        }
+        return newValue;
+      }),
       switchMap(({ id, type }) => {
         if (type === 'cell')
           return this.worldMap$.asObservable().pipe(
@@ -361,6 +377,16 @@ export class EngineService implements OnDestroy {
             })
           );
         return of(undefined);
+      }),
+      tap((infoData) => {
+        if (infoData) {
+          const { data, type } = infoData;
+          const obj = this.scene?.getMeshByName(type + '_' + data.id);
+          if (obj) {
+            this.soundService.click();
+            this.animateCamera(obj);
+          }
+        }
       })
     );
   }
@@ -379,12 +405,21 @@ export class EngineService implements OnDestroy {
 
   private addResources() {}
   private removeResources() {}
-
+  private selectCell(id: number, active: boolean) {
+    const mesh = this.scene
+      ?.getMeshByName('cell_' + id)
+      ?.getChildMeshes()
+      .find((mesh) => mesh.name.slice(9) === 'border');
+    if (mesh && this.scene) {
+      const material = new StandardMaterial('border_mat', this.scene);
+      material.diffuseColor = active
+        ? new Color3(0, 1, 0)
+        : new Color3(0, 0, 0);
+      mesh.material = material;
+    }
+  }
   private buildGround() {
     if (!this.scene) throw new Error('scene not define');
-
-    //Resolution is the number of actual grid points that you'll have. width x height. Then add 1 to make it an odd number of grid points.
-
     for (let col = 0; col < this.xSize; ++col) {
       for (let row = 0; row < this.zSize; ++row) {
         if (this.container) {
@@ -392,9 +427,8 @@ export class EngineService implements OnDestroy {
           const terrainRoot = terrain.rootNodes[0];
           const id = row * this.zSize + col;
           terrainRoot.name = 'cell_' + id;
-          this.updateCell(this.worldMap$.value[id].res, terrainRoot);
-
           terrainRoot.scaling = new Vector3(0.25, 0.25, 0.25);
+          this.updateCell(this.worldMap$.value[id].res, terrainRoot);
           terrainRoot.position.x =
             this.cellSize * (col - this.xSize / 2 + 1 / 2);
           terrainRoot.position.z =
@@ -454,15 +488,6 @@ export class EngineService implements OnDestroy {
       this.scene
     );
     this.camera.lockedTarget = new TransformNode('root');
-    // this.camera = new FreeCamera(
-    //   'camera1',
-    //   new Vector3(5, 10, -20),
-    //   this.scene
-    // );
-
-    // target the camera to scene origin
-
-    // attach the camera to the canvas
     this.camera.attachControl(this.canvas, true);
 
     this.light = new HemisphericLight(
@@ -471,12 +496,6 @@ export class EngineService implements OnDestroy {
       this.scene
     );
     this.light.intensity = 0.7;
-    // this.light = new DirectionalLight(
-    //   'light1',
-    //   new Vector3(-1, -3, 1),
-    //   this.scene
-    // );
-    // this.light.position = new Vector3(0, 10, 0);
     this.camera.upperBetaLimit = Math.PI / 2.2;
     this.camera.lowerRadiusLimit = this.cellSize * 2;
     this.camera.upperRadiusLimit =
@@ -513,157 +532,6 @@ export class EngineService implements OnDestroy {
     material.alpha = 0.7;
     shape.material = material;
     return shape;
-  }
-
-  private treeFactory(
-    sizeBranch: number,
-    sizeTrunk: number,
-    radius: number,
-    trunkMaterial: Material,
-    leafMaterial: Material,
-    scene: Scene
-  ) {
-    const treeParent = Mesh.CreatePlane('treeParent', this.cellSize, scene);
-    treeParent.isVisible = false;
-
-    const leaves = new Mesh('leaves', scene);
-
-    //const vertexData = BABYLON.VertexData.CreateSphere(2,sizeBranch); //this line for BABYLONJS2.2 or earlier
-    const vertexData = VertexData.CreateSphere({
-      segments: 2,
-      diameter: sizeBranch,
-    }); //this line for BABYLONJS2.3 or later
-
-    vertexData.applyToMesh(leaves, false);
-
-    const positions = leaves.getVerticesData(VertexBuffer.PositionKind) ?? [];
-    const indices = leaves.getIndices();
-    const numberOfPoints = positions.length / 3;
-
-    const map = [];
-
-    // The higher point in the sphere
-    // const v3 = Vector3;
-    const max = [];
-
-    for (let i = 0; i < numberOfPoints; i++) {
-      const p = new Vector3(
-        positions[i * 3],
-        positions[i * 3 + 1],
-        positions[i * 3 + 2]
-      );
-
-      if (p.y >= sizeBranch / 2) {
-        max.push(p);
-      }
-
-      let found = false;
-      for (let index = 0; index < map.length && !found; index++) {
-        const array = map[index];
-        const p0 = array[0];
-        if (
-          p0 instanceof Vector3 &&
-          (p0.equals(p) || p0.subtract(p).lengthSquared() < 0.01)
-        ) {
-          array.push(i * 3);
-          found = true;
-        }
-      }
-      if (!found) {
-        const array = [];
-        array.push(p, i * 3);
-        map.push(array);
-      }
-    }
-    const randomNumber = function (min: number, max: number) {
-      if (min == max) {
-        return min;
-      }
-      const random = Math.random();
-      return random * (max - min) + min;
-    };
-
-    map.forEach(function (array) {
-      let index;
-      const min = -sizeBranch / 10;
-      const max = sizeBranch / 10;
-      const rx = randomNumber(min, max);
-      const ry = randomNumber(min, max);
-      const rz = randomNumber(min, max);
-
-      for (index = 1; index < array.length; index++) {
-        const i = array[index];
-        if (typeof i === 'number') {
-          positions[i] += rx;
-          positions[i + 1] += ry;
-          positions[i + 2] += rz;
-        }
-      }
-    });
-
-    leaves.setVerticesData(VertexBuffer.PositionKind, positions);
-    VertexData.ComputeNormals(positions, indices, []);
-    leaves.setVerticesData(VertexBuffer.NormalKind, []);
-    leaves.convertToFlatShadedMesh();
-
-    leaves.material = leafMaterial;
-    leaves.position.y = sizeTrunk + sizeBranch / 2 - 2;
-
-    const trunk = Mesh.CreateCylinder(
-      'trunk',
-      sizeTrunk,
-      radius - 2 < 1 ? 1 : radius - 2,
-      radius,
-      10,
-      2,
-      scene
-    );
-
-    trunk.position.y = sizeBranch / 2 + 2 - sizeTrunk / 2;
-
-    trunk.material = trunkMaterial;
-    trunk.convertToFlatShadedMesh();
-
-    leaves.parent = treeParent;
-    trunk.parent = treeParent;
-    const mTree = Mesh.MergeMeshes(
-      [treeParent, trunk, leaves],
-      false,
-      true,
-      undefined,
-      false,
-      true
-    );
-
-    return mTree;
-  }
-
-  private addFood() {
-    if (!this.scene) return;
-    const leafMaterial = new StandardMaterial('leafMaterial', this.scene);
-    leafMaterial.diffuseColor = new Color3(0.5, 1, 0.5);
-
-    const woodMaterial = new StandardMaterial('woodMaterial', this.scene);
-    const woodTexture = new WoodProceduralTexture(
-      'woodTexture',
-      512,
-      this.scene
-    );
-    woodTexture.ampScale = 1;
-    woodMaterial.diffuseTexture = woodTexture;
-    const tree1 = this.treeFactory(
-      15,
-      10,
-      5,
-      woodMaterial,
-      leafMaterial,
-      this.scene
-    );
-    if (!tree1) return;
-    const tree2 = tree1.createInstance('tree2');
-    tree2.position.x = 20;
-    const tree3 = tree1.createInstance('tree3');
-    tree3.position.x = -20;
   }
 
   private addPlayer(player: Player) {
@@ -754,9 +622,17 @@ export class EngineService implements OnDestroy {
           mesh.position = cristalPosition;
           const material = new StandardMaterial('kristal_mat', this.scene);
           material.diffuseColor = this.getColor();
+          material.freeze();
           mesh.material = material;
         } else {
           mesh.visibility = 0;
+        }
+      } else if (name === 'border') {
+        if (!(mesh.material as StandardMaterial).diffuseColor && this.scene) {
+          const material = new StandardMaterial('border_mat', this.scene);
+          material.diffuseColor = new Color3(0, 0, 0);
+          material.freeze();
+          mesh.material = material;
         }
       }
     });
