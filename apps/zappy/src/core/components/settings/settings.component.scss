@@ -37,6 +37,11 @@
       align-items: center;
       position: relative;
     }
+    &-mode {
+      display: flex;
+      align-items: center;
+      padding-right: 2rem;
+    }
     .slider {
       position: absolute;
       width: 100px;

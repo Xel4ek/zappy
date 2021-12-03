@@ -13,18 +13,17 @@
         ></tui-badge>
         <tui-badged-content
           *ngFor="let player of item.players"
-          size="l"
+          size="s"
           [contentTop]="player.level"
           [colorTop]="'red'"
           [rounded]="true"
           class="player"
-          [contentBottom]="player.direction"
         >
           <tui-avatar
             (click)="focusPlayer($event, player.id)"
             [text]="'' + player.id"
             [style.--tui-text-01]="invertColor(player.color)"
-            size="l"
+            size="s"
             [title]="player.team"
             [rounded]="true"
             [ngStyle]="{ color: player.color }"

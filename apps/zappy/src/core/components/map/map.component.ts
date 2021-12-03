@@ -8,6 +8,7 @@ import { Cell, GameService } from '../../services/game/game.service';
 import { TuiDestroyService } from '@taiga-ui/cdk';
 import { Observable, takeUntil, tap } from 'rxjs';
 import { SoundService } from '../../services/sound/sound.service';
+import { EngineService } from '../../services/engine/engine.service';
 
 @Component({
   selector: 'zappy-map',
@@ -33,7 +34,7 @@ export class MapComponent {
   sizeY!: number;
 
   constructor(
-    private readonly gameService: GameService,
+    private readonly gameService: EngineService,
     private readonly destroy$: TuiDestroyService,
     private readonly soundService: SoundService
   ) {
@@ -96,9 +97,9 @@ export class MapComponent {
     this.gameService.setInfo(id, 'cell');
   }
 
-  @HostListener('document:click')
-  clickOut() {
-    this.soundService.click();
-    this.gameService.setInfo(-1, 'empty');
-  }
+  // @HostListener('document:click')
+  // clickOut() {
+  //   this.soundService.click();
+  //   this.gameService.setInfo(-1, 'empty');
+  // }
 }

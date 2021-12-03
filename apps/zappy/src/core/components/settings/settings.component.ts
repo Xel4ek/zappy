@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 import { TuiDestroyService } from '@taiga-ui/cdk';
 import { SoundService } from '../../services/sound/sound.service';
 import { EngineService } from '../../services/engine/engine.service';
+import { SettingsService } from '../../services/settings/settings.service';
 
 @Component({
   selector: 'zappy-settings',
@@ -16,6 +17,7 @@ import { EngineService } from '../../services/engine/engine.service';
 })
 export class SettingsComponent {
   private volumeKeeper = { trusted: false, volume: 0 };
+  mode$: Observable<'2d' | '3d'>;
   speed$: Observable<number>;
   info$: Observable<
     { type: 'player'; data: Player } | { type: 'cell'; data: Cell } | undefined
@@ -25,9 +27,13 @@ export class SettingsComponent {
     // private readonly gameService: GameService,
     private readonly engineService: EngineService,
     private readonly destroyService$: TuiDestroyService,
-    private readonly soundService: SoundService
+    private readonly soundService: SoundService,
+    private readonly settingsService: SettingsService
   ) {
     this.info$ = this.engineService.info();
+    this.mode$ = this.settingsService
+      .settings()
+      .pipe(map((settings) => settings.mode));
     this.soundVolume.valueChanges
       .pipe(
         takeUntil(this.destroyService$),
@@ -59,5 +65,9 @@ export class SettingsComponent {
 
   decreaseSpeed() {
     this.engineService.decreaseSpeed();
+  }
+
+  changeMode(mode: '2d' | '3d') {
+    this.settingsService.setMode(mode);
   }
 }

@@ -75,10 +75,10 @@ export class GameService {
   }
 
   private static getDirection(direction) {
-    if (direction === 1) return 'tuiIconArrowUpLarge';
-    if (direction === 2) return 'tuiIconArrowRightLarge';
-    if (direction === 3) return 'tuiIconArrowDownLarge';
-    return 'tuiIconArrowLeftLarge';
+    if (direction === 1) return 'tuiIconArrowUp';
+    if (direction === 2) return 'tuiIconArrowRight';
+    if (direction === 3) return 'tuiIconArrowDown';
+    return 'tuiIconArrowLeft';
   }
 
   private static readonly eventMap = new Map<

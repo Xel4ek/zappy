@@ -534,6 +534,7 @@ export class EngineService implements OnDestroy {
   }
 
   private addPlayer(player: Player) {
+    if (!this.scene) return;
     const scenePlayer = this.playerFactory(player);
     this.setPlayerPosition(scenePlayer, player.x, player.y);
     scenePlayer.position.y = 8;

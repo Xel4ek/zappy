@@ -5,7 +5,7 @@
     display: grid;
     gap: 2px;
     .cell {
-      background-color: #b183c5;
+      background-color: #dcd2e1;
 
       aspect-ratio: 1/1;
       width: 100px;
@@ -20,6 +20,23 @@
     .cell-content {
       display: flex;
       flex-wrap: wrap;
+      //.player {
+      //  transform: scale(0.3);
+      //  width: 24px;
+      //  height: 24px;
+      //}
+    }
+  }
+}
+::ng-deep {
+  .cell-content {
+    .player {
+      .content_top {
+        box-shadow: none !important;
+        background-color: transparent;
+        top: -0.45rem !important;
+        right: -0.5rem !important;
+      }
     }
   }
 }

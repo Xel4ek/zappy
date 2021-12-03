@@ -1,4 +1,20 @@
 <div class="controls">
+  <div class="controls-mode" *tuiLet="mode$ | async as mode">
+    <tui-marker-icon
+      style="background: transparent"
+      (click)="changeMode('3d')"
+      src="/assets/icon/icons8-octaedro.svg"
+      size="xs"
+      *ngIf="mode === '2d'"
+    ></tui-marker-icon>
+    <tui-marker-icon
+      (click)="changeMode('2d')"
+      class="marker"
+      src="tuiIconStructureLarge"
+      size="xs"
+      *ngIf="mode === '3d'"
+    ></tui-marker-icon>
+  </div>
   <div class="controls-speed" *ngIf="speed$ | async as speed">
     <tui-marker-icon
       (click)="decreaseSpeed()"

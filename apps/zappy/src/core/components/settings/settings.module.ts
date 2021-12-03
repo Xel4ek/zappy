@@ -7,6 +7,7 @@ import {
   TuiSliderModule,
 } from '@taiga-ui/kit';
 import { ReactiveFormsModule } from '@angular/forms';
+import { TuiLetModule } from '@taiga-ui/cdk';
 
 @NgModule({
   declarations: [SettingsComponent],
@@ -17,6 +18,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     TuiSliderModule,
     ReactiveFormsModule,
     TuiMarkerIconModule,
+    TuiLetModule,
   ],
 })
 export class SettingsModule {}

@@ -7,6 +7,7 @@ import { TuiScrollbarModule } from '@taiga-ui/core';
 import { SettingsModule } from '../settings/settings.module';
 import { GameService } from '../../services/game/game.service';
 import { Map3dModule } from '../map3d/map3d.module';
+import { TuiLetModule } from '@taiga-ui/cdk';
 
 @NgModule({
   declarations: [GameComponent],
@@ -18,6 +19,7 @@ import { Map3dModule } from '../map3d/map3d.module';
     TuiScrollbarModule,
     SettingsModule,
     Map3dModule,
+    TuiLetModule,
   ],
 })
 export class GameModule {
