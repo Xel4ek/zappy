@@ -131,7 +131,7 @@ export class EngineService implements OnDestroy {
   public async createScene(
     canvas: ElementRef<HTMLCanvasElement>,
     size: { x: number; y: number }
-  ): Promise<void> {
+  ): Promise<Engine> {
     this.xSize = size.x;
     this.zSize = size.y;
     this.canvas = canvas.nativeElement;
@@ -206,7 +206,7 @@ export class EngineService implements OnDestroy {
         });
       }
     }, PointerEventTypes.POINTERTAP);
-    this.scene.clearColor = new Color4(0.18, 0.18, 0.18, 1);
+    this.scene.clearColor = new Color4(0.68, 0.68, 0.68, 1);
 
     // this.buildGround2();
     this.buildGround();
@@ -219,6 +219,7 @@ export class EngineService implements OnDestroy {
     // generates the world x-y-z axis for better understanding
     // this.showWorldAxis(8);
     // this.container.load();
+    return this.engine;
   }
 
   public animate(): void {

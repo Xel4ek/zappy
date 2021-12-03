@@ -1,34 +1,36 @@
 <tui-scrollbar class="box">
-  <div class="map" (mouseleave)="showHint()">
-    <div
-      class="cell"
-      *ngFor="let item of worldMap | async; trackBy: trackBy"
-      (click)="focusCell($event, item.id)"
-    >
-      <div class="cell-content">
-        <tui-badge
-          *ngFor="let res of item.res | keyvalue"
-          [value]="res.value"
-          [ngClass]="res.key | lowercase"
-        ></tui-badge>
-        <tui-badged-content
-          *ngFor="let player of item.players"
-          size="s"
-          [contentTop]="player.level"
-          [colorTop]="'red'"
-          [rounded]="true"
-          class="player"
-        >
-          <tui-avatar
-            (click)="focusPlayer($event, player.id)"
-            [text]="'' + player.id"
-            [style.--tui-text-01]="invertColor(player.color)"
+  <div class="wrapper">
+    <div class="map" (mouseleave)="showHint()">
+      <div
+        class="cell"
+        *ngFor="let item of worldMap | async; trackBy: trackBy"
+        (click)="focusCell($event, item.id)"
+      >
+        <div class="cell-content">
+          <tui-badge
+            *ngFor="let res of item.res | keyvalue"
+            [value]="res.value"
+            [ngClass]="res.key | lowercase"
+          ></tui-badge>
+          <tui-badged-content
+            *ngFor="let player of item.players"
             size="s"
-            [title]="player.team"
+            [contentTop]="player.level"
+            [colorTop]="'red'"
             [rounded]="true"
-            [ngStyle]="{ color: player.color }"
-          ></tui-avatar>
-        </tui-badged-content>
+            class="player"
+          >
+            <tui-avatar
+              (click)="focusPlayer($event, player.id)"
+              [text]="'' + player.id"
+              [style.--tui-text-01]="invertColor(player.color)"
+              size="s"
+              [title]="player.team"
+              [rounded]="true"
+              [ngStyle]="{ color: player.color }"
+            ></tui-avatar>
+          </tui-badged-content>
+        </div>
       </div>
     </div>
   </div>
