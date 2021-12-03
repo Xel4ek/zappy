@@ -12,6 +12,7 @@
             [value]="res.value"
             [ngClass]="res.key | lowercase"
           ></tui-badge>
+          <div class="filler"></div>
           <tui-badged-content
             *ngFor="let player of item.players"
             size="s"
