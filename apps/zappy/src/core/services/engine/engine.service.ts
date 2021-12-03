@@ -425,6 +425,7 @@ export class EngineService implements OnDestroy {
         if (this.container) {
           const terrain = this.container.instantiateModelsToScene();
           const terrainRoot = terrain.rootNodes[0];
+
           const id = row * this.zSize + col;
           terrainRoot.name = 'cell_' + id;
           terrainRoot.scaling = new Vector3(0.25, 0.25, 0.25);
@@ -436,8 +437,6 @@ export class EngineService implements OnDestroy {
         }
       }
     }
-
-    // console.log(terrainRoot.getScalingVectorToFit());
   }
 
   private buildGround2() {
@@ -622,6 +621,7 @@ export class EngineService implements OnDestroy {
           mesh.position = cristalPosition;
           const material = new StandardMaterial('kristal_mat', this.scene);
           material.diffuseColor = this.getColor();
+          material.alpha = 0.7;
           material.freeze();
           mesh.material = material;
         } else {
