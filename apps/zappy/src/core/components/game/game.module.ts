@@ -8,6 +8,7 @@ import { SettingsModule } from '../settings/settings.module';
 import { GameService } from '../../services/game/game.service';
 import { Map3dModule } from '../map3d/map3d.module';
 import { TuiLetModule } from '@taiga-ui/cdk';
+import { EngineService } from '../../services/engine/engine.service';
 
 @NgModule({
   declarations: [GameComponent],

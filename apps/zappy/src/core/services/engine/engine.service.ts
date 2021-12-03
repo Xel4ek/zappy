@@ -66,6 +66,7 @@ import { WoodProceduralTexture } from '@babylonjs/procedural-textures';
 
 @Injectable({ providedIn: 'root' })
 export class EngineService implements OnDestroy {
+  private cashRead = false;
   private readonly resColorMap = [
     new Color3(1, 1, 0),
     new Color3(1, 0, 0.2),
@@ -420,6 +421,8 @@ export class EngineService implements OnDestroy {
   }
   private buildGround() {
     if (!this.scene) throw new Error('scene not define');
+    Object.values(this.players$.value).map((player) => this.addPlayer(player));
+    this.cashRead = true;
     for (let col = 0; col < this.xSize; ++col) {
       for (let row = 0; row < this.zSize; ++row) {
         if (this.container) {
@@ -714,7 +717,7 @@ export class EngineService implements OnDestroy {
           this.loggerService.addMessage(
             'Player: "' + player.id + '" join ' + player.team + ' team'
           );
-          this.addPlayer(player);
+          if (this.cashRead) this.addPlayer(player);
         })
       )
       .subscribe();
