@@ -11,11 +11,9 @@ import {
   Animation,
   ArcRotateCamera,
   AssetContainer,
-  BezierCurveEase,
   Color3,
   Color4,
   DynamicTexture,
-  EasingFunction,
   Engine,
   HemisphericLight,
   Light,
@@ -25,14 +23,11 @@ import {
   PointerEventTypes,
   Scene,
   SceneLoader,
-  SolidParticleSystem,
   StandardMaterial,
   SubMesh,
   Texture,
   TransformNode,
   Vector3,
-  VertexBuffer,
-  VertexData,
 } from '@babylonjs/core';
 import { GridMaterial } from '@babylonjs/materials/grid';
 
@@ -62,7 +57,6 @@ import { WebsocketService } from '../websocket/websocket.service';
 import { SoundService } from '../sound/sound.service';
 import { LoggerService } from '../logger/logger.service';
 import { map } from 'rxjs/operators';
-import { WoodProceduralTexture } from '@babylonjs/procedural-textures';
 
 @Injectable({ providedIn: 'root' })
 export class EngineService implements OnDestroy {
@@ -100,12 +94,9 @@ export class EngineService implements OnDestroy {
   private scene?: Scene;
   private light?: Light;
   private readonly windowRef: Window | null;
-  private sphere?: Mesh;
   private xSize = 0;
   private zSize = 0;
   private container?: AssetContainer;
-  private playerMesh?: Mesh;
-  // private ground?: Mesh;
   private materialsMap = new Map<string, Material>();
 
   public constructor(
@@ -405,8 +396,6 @@ export class EngineService implements OnDestroy {
     this.websocketService.send('sst', this.gameSettings$.value.speed * 0.5);
   }
 
-  private addResources() {}
-  private removeResources() {}
   private selectCell(id: number, active: boolean) {
     const mesh = this.scene
       ?.getMeshByName('cell_' + id)
@@ -440,43 +429,6 @@ export class EngineService implements OnDestroy {
             this.cellSize * (row - this.zSize / 2 + 1 / 2);
         }
       }
-    }
-  }
-
-  private buildGround2() {
-    if (this.scene) {
-      const groundMat = new GridMaterial('grid', this.scene);
-      groundMat.gridRatio = 10;
-      groundMat.majorUnitFrequency = 1;
-      groundMat.mainColor = new Color3(0.01, 0.3, 0.1);
-      // const groundMat = new StandardMaterial('groundMat', this.scene);
-      // groundMat.diffuseColor = new Color3(0.01, 0.3, 0.1);
-
-      const ground = MeshBuilder.CreateGround('ground', {
-        width: this.xSize * this.cellSize,
-        height: this.zSize * this.cellSize,
-        subdivisionsX: this.xSize,
-        subdivisionsY: this.zSize,
-      });
-      let base = 0;
-      const length =
-        (ground?.getIndices()?.length ?? 0) / (this.xSize * this.zSize);
-      for (let row = 0; row < this.xSize; ++row) {
-        for (let col = 0; col < this.zSize; ++col) {
-          ground.subMeshes.push(
-            new SubMesh(
-              row + col,
-              0,
-              ground.getTotalVertices(),
-              base,
-              length,
-              ground
-            )
-          );
-          base += length;
-        }
-      }
-      ground.material = groundMat;
     }
   }
 
@@ -518,15 +470,25 @@ export class EngineService implements OnDestroy {
 
   private playerFactory(player: { id: number; level: number; color: string }) {
     if (!this.scene || !this.light) throw new Error('Scene undefined');
-    const shape = MeshBuilder.CreatePolyhedron(
-      'player_' + player.id,
-      {
-        type: player.level - 1,
-        size: this.cellSize / 4,
-      },
-      this.scene
-    );
-
+    let shape: Mesh;
+    if (player.level < 6) {
+      shape = MeshBuilder.CreatePolyhedron(
+        'player_' + player.id,
+        {
+          type: player.level - 1,
+          size: this.cellSize / 4,
+        },
+        this.scene
+      );
+    } else {
+      shape = MeshBuilder.CreateSphere(
+        'player_' + player.id,
+        {
+          diameter: this.cellSize / 4,
+        },
+        this.scene
+      );
+    }
     const material = new StandardMaterial(
       'player_' + player.id + '_mat',
       this.scene
@@ -545,12 +507,12 @@ export class EngineService implements OnDestroy {
     Animation.CreateAndStartAnimation(
       '' + 'intro',
       scenePlayer,
-      'position.y',
+      'scaling',
       this.frameRate,
       this.frameRate,
-      200,
-      scenePlayer.position.y,
-      2
+      new Vector3(0, 0, 0),
+      scenePlayer.scaling,
+      Animation.ANIMATIONLOOPMODE_CONSTANT
     );
     const rotate = Array.from(
       { length: 3 },
@@ -586,24 +548,57 @@ export class EngineService implements OnDestroy {
         (this.frameRate * 7) / (this.gameSettings$?.value.speed ?? 1),
         oldPosition,
         scenePlayer.position,
-        2
+        Animation.ANIMATIONLOOPMODE_CONSTANT
       );
   }
-
+  removePlayer(player: Pick<Player, 'id'>) {
+    if (!this.scene) return;
+    const scenePlayer = this.scene.getMeshByName('player_' + player.id);
+    if (!scenePlayer) return;
+    Animation.CreateAndStartAnimation(
+      'removePlayerAnimation',
+      scenePlayer,
+      'scaling',
+      this.frameRate,
+      (this.frameRate * 5) / (this.gameSettings$?.value.speed ?? 1),
+      scenePlayer.scaling,
+      new Vector3(0, 0, 0),
+      Animation.ANIMATIONLOOPMODE_CONSTANT,
+      undefined,
+      () => scenePlayer.dispose()
+    );
+  }
+  startCastPlayer(player: Pick<Player, 'id'>) {
+    this.loggerService.addMessage('Player ' + player.id + ' start cast!');
+    if (!this.scene) return;
+    const scenePlayer = this.scene.getMeshByName('player_' + player.id);
+    if (scenePlayer) {
+      Animation.CreateAndStartAnimation(
+        'castPlayerAnimation',
+        scenePlayer,
+        'scaling',
+        this.frameRate,
+        (this.frameRate * 7) / (this.gameSettings$?.value.speed ?? 1),
+        scenePlayer.scaling,
+        new Vector3(0.3, 0.3, 0.3),
+        Animation.ANIMATIONLOOPMODE_CYCLE,
+        undefined,
+        () => scenePlayer.dispose()
+      );
+    }
+  }
+  stopCastPlayer(player: Pick<Player, 'id'>, result: boolean) {
+    this.loggerService.addMessage(
+      'Player ' +
+        player.id +
+        ' finish cast with ' +
+        (result ? 'success' : 'fail')
+    );
+  }
   private updateCell(resources: Record<string, number>, node: TransformNode) {
     const hasRes = !!Object.entries(resources).filter(
       ([key, value]) => key !== 'Nourriture' && value
     ).length;
-    const orePosition = new Vector3(
-      (Math.random() - 0.5) * this.cellSize * 1.7,
-      0,
-      (Math.random() - 0.5) * this.cellSize * 2
-    );
-    const cristalPosition = new Vector3(
-      orePosition.x - 3.5,
-      7.17,
-      orePosition.z
-    );
     node.getChildMeshes().map((mesh) => {
       const name = mesh.name.slice(9);
 
@@ -616,14 +611,12 @@ export class EngineService implements OnDestroy {
       } else if (name === 'ore') {
         if (hasRes) {
           mesh.visibility = 1;
-          mesh.position = orePosition;
         } else {
           mesh.visibility = 0;
         }
       } else if (name === 'crystal') {
         if (hasRes && this.scene) {
           mesh.visibility = 1;
-          mesh.position = cristalPosition;
           const material = new StandardMaterial('kristal_mat', this.scene);
           material.diffuseColor = this.getColor();
           material.alpha = 0.7;
@@ -768,6 +761,8 @@ export class EngineService implements OnDestroy {
             players[player.id].level = data.level;
             this.worldMap$.next([...worldMap]);
             this.players$.next({ ...players });
+            this.removePlayer(player);
+            this.addPlayer(player);
           }
         })
       )
@@ -840,7 +835,31 @@ export class EngineService implements OnDestroy {
             delete players[+id];
             this.worldMap$.next([...worldMap]);
             this.players$.next({ ...players });
+            this.removePlayer({ id });
           }
+        })
+      )
+      .subscribe();
+    this.websocketService
+      .on<{ ids: number[] }>('pic')
+      .pipe(
+        takeUntil(this.destroy$),
+        tap(({ ids }) => {
+          ids.map((id) => {
+            this.startCastPlayer({ id });
+          });
+        })
+      )
+      .subscribe();
+
+    this.websocketService
+      .on<{ x: number; y: number; result: boolean }>('pie')
+      .pipe(
+        takeUntil(this.destroy$),
+        tap((data) => {
+          Object.values(this.players$.value)
+            .filter((pl) => pl.x === data.x && pl.y === data.y)
+            .map((pl) => this.stopCastPlayer(pl, data.result));
         })
       )
       .subscribe();

@@ -159,6 +159,20 @@ export class GameService {
         id: +data[0],
       }),
     ],
+    [
+      'pic',
+      (data) => ({
+        ids: data.slice(3).map((id) => +id),
+      }),
+    ],
+    [
+      'pie',
+      (data) => ({
+        x: +data[0],
+        y: +data[1],
+        result: !!data[2],
+      }),
+    ],
   ]);
 
   constructor(

@@ -17,7 +17,6 @@ export class SoundService {
     loop: true,
     volume: 0.1,
   });
-  constructor() {}
 
   click() {
     this._click.play();
